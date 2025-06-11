@@ -14,7 +14,6 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-    'superadmin' => env('APP_SUPERADMIN'),
 
     /*
     |--------------------------------------------------------------------------

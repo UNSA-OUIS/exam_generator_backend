@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_key', function (Blueprint $table) {
             $table->id();
-            $table->string('hashed_key'); // stores hash of interleaved password1 + password2
+            $table->text('hashed_key'); // stores hash of interleaved password1 + password2
             $table->timestamps();
         });
     }
