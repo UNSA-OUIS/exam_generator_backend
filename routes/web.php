@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\BlockController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MatrixController;
+use App\Http\Controllers\MatrixDetailController;
+use App\Http\Controllers\ProcessController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RequireMasterKey;
 use Illuminate\Http\Request;
@@ -26,5 +31,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::apiResources([
+        'processes' => ProcessController::class,
+        'matrices' => MatrixController::class,
+        'levels' => LevelController::class,
+        'blocks' => BlockController::class,
+        'matrix_details' => MatrixDetailController::class,
+    ]);
+
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
 });
