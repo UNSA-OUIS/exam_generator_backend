@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,9 +13,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('question_areas', function (Blueprint $table) {
-            $table->id();
+            $table->tinyIncrements('id');
+            $table->foreignUuid('question_id')->constrained('questions');
+            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
             $table->timestamps();
         });
+
+        DB::statement("ALTER TABLE question_areas ALTER COLUMN area TYPE area_enum USING area::area_enum;");
     }
 
     /**

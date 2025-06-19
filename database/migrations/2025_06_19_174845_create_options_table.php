@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('options', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedTinyInteger('number');
+            $table->foreignUuid('question_id')->constrained('questions');
             $table->timestamps();
         });
     }
