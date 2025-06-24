@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Enums\AreaEnum;
 use Illuminate\Database\Eloquent\Model;
 
-class ExamVariation extends Model
+class ExamLayout extends Model
 {
     protected $fillable = [
         'exam_id',

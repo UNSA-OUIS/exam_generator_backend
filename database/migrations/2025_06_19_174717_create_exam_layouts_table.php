@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('exam_variations', function (Blueprint $table) {
+        Schema::create('exam_layouts', function (Blueprint $table) {
             $table->id();
             $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
             $table->foreignUuid('exam_id')->constrained('exams');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement("ALTER TABLE exam_variations ALTER COLUMN area TYPE area_enum USING area::area_enum;");
+        DB::statement("ALTER TABLE exam_layouts ALTER COLUMN area TYPE area_enum USING area::area_enum;");
     }
 
     /**
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exam_variations');
+        Schema::dropIfExists('exam_layouts');
     }
 };
