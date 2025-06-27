@@ -17,20 +17,12 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return response()->json([
-        'message' => 'Welcome to the Dashboard Generator API',
-    ]);
-});
-
-Route::middleware([RequireMasterKey::class])->group(function () {
-    Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
-});
+//Route::middleware([RequireMasterKey::class])->group(function () {
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
+//});
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [UserController::class, 'show']);
 
     Route::apiResources([
         'processes' => ProcessController::class,
