@@ -42,3 +42,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
 });
+
+Route::get('/matrix/{matrix_id}/export', [MatrixController::class, 'exportBlocks']);

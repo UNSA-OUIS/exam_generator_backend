@@ -33,7 +33,7 @@ class BlockController extends Controller
             // If no parent block is specified, generate a unique code
             $level = Level::find($validated['level_id']);
             $children_count = Block::where('level_id', $validated['level_id'])->count();
-            $validated['code'] = $level->stage . str_pad($children_count + 1, 2, '0', STR_PAD_LEFT);
+            $validated['code'] = str_pad($children_count + 1, 2, '0', STR_PAD_LEFT);
         } else {
             // Generate a code based on the parent block
             $parentBlock = Block::find($validated['parent_block_id']);
@@ -71,6 +71,8 @@ class BlockController extends Controller
 
         return response()->json($block);
     }
+
+
 
     /**
      * Remove the specified resource from storage.
