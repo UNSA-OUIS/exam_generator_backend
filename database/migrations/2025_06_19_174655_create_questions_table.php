@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,18 +16,17 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->text('statement');
             $table->enum('difficulty', ['FACIL', 'MEDIO', 'DIFICIL']);
-            $table->enum('status', ['USED', 'AVAILABLE']);
+            $table->enum('status', ['DISPONIBLE', 'NO DISPONIBLE', 'USADA', 'DESCARTADA']);
             $table->unsignedInteger('block_id');
-            $table->foreignUuid('text_id')->constrained('texts');
-            $table->foreignUuid('formulator_id')->constrained('participants');
-            $table->foreignUuid('validator_id')->constrained('participants');
-            $table->foreignUuid('style_editor_id')->constrained('participants');
-            $table->foreignUuid('digitador_id')->constrained('participants');
+            $table->foreignUuid('text_id')->nullable()->constrained('texts');
+            $table->unsignedInteger('formulator_id')->constrained('participants');
+            $table->unsignedInteger('validator_id')->constrained('participants');
+            $table->unsignedInteger('style_editor_id')->constrained('participants');
+            $table->unsignedInteger('digitador_id')->constrained('participants');
             $table->text('resolution_path');
-            $table->date('resolution_date');
             $table->unsignedTinyInteger('answer');
-            $table->foreignUuid('exam_id')->constrained('exams');
-            $table->unsignedBigInteger('confinement_id');
+            $table->foreignUuid('exam_id')->nullable()->constrained('exams');
+            $table->foreignUuid('confinement_id')->constrained('confinements');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('modified_by');
             $table->timestamps();
@@ -36,11 +36,6 @@ return new class extends Migration
             $table->foreign('block_id')
                 ->references('id')
                 ->on('blocks')
-                ->onDelete('cascade');
-
-            $table->foreign('confinement_id')
-                ->references('id')
-                ->on('confinements')
                 ->onDelete('cascade');
 
             $table->foreign('created_by')

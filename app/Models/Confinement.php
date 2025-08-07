@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Confinement extends Model
 {
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'name',
         'total',

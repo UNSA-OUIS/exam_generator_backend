@@ -6,14 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Text extends Model
 {
-    protected $fillable = [
-        'name',
-        'path',
-        'question_id'
-    ];
+    public $incrementing = false;
+    protected $keyType = 'string';
 
-    public function question()
-    {
-        return $this->belongsTo(Question::class);
-    }
+    protected $fillable = [
+        'content'
+    ];
 }

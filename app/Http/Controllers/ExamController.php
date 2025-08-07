@@ -23,10 +23,11 @@ class ExamController extends Controller
     {
         $validated = $request->validate([
             'matrix_id' => 'required|exists:matrices,id',
-            'user_id'   => 'required|exists:users,id',
             'description' => 'required|string',
             'total_variations' => 'required|integer',
         ]);
+
+        $validated['user_id'] = $request->user()->id; // Assuming the user is authenticated
 
         $exam = Exam::create($validated);
 
@@ -49,7 +50,6 @@ class ExamController extends Controller
     {
         $validated = $request->validate([
             'matrix_id' => 'sometimes|required|exists:matrices,id',
-            'user_id'   => 'sometimes|required|exists:users,id',
             'description' => 'sometimes|required|string',
             'total_variations' => 'sometimes|required|integer',
         ]);

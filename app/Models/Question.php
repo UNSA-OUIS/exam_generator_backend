@@ -3,10 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Facades\DB;
 
 class Question extends Model
 {
+    use HasUuids;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
+        'id',
         'statement',
         'difficulty',
         'status',
@@ -17,13 +25,21 @@ class Question extends Model
         'style_editor_id',
         'digitador_id',
         'resolution_path',
-        'resolution_date',
         'answer',
         'exam_id',
         'confinement_id',
         'created_by',
         'modified_by',
     ];
+
+    /**
+     * Generate a new UUID for the model.
+     */
+    public function newUniqueId(): string
+    {
+        $result = DB::select('SELECT gen_random_uuid() AS uuid');
+        return $result[0]->uuid;
+    }
 
     public function options()
     {

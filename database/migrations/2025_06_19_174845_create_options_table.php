@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('options', function (Blueprint $table) {
             $table->unsignedTinyInteger('number');
-            $table->foreignUuid('question_id')->constrained('questions');
-            $table->timestamps();
+            $table->foreignUuid('question_id')->constrained('questions')->onDelete('cascade');
+            $table->text('description');
+
+            $table->primary(['number', 'question_id']); // Composite primary key
         });
     }
 

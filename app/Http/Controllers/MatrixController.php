@@ -168,7 +168,7 @@ class MatrixController extends Controller
 
     public function exportBlocks()
     {
-        $matrixId = 1; // example
+        $matrixId = 1;
         return Excel::download(new BlocksExport($matrixId), 'blocks.xlsx');
     }
 }

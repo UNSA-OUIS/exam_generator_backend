@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Matrix;
-use App\Models\Process;
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,6 +18,7 @@ class DatabaseSeeder extends Seeder
             LevelSeeder::class,
             MatrixSeeder::class,
             MatrixDetailSeeder::class,
+            ConfinementSeeder::class,
         ]);
     }
 }

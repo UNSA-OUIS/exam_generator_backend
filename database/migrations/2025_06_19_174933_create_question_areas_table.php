@@ -16,7 +16,6 @@ return new class extends Migration
             $table->tinyIncrements('id');
             $table->foreignUuid('question_id')->constrained('questions');
             $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
-            $table->timestamps();
         });
 
         DB::statement("ALTER TABLE question_areas ALTER COLUMN area TYPE area_enum USING area::area_enum;");
