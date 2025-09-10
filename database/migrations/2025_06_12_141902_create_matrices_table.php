@@ -15,12 +15,12 @@ return new class extends Migration
             $table->tinyIncrements('id');
             $table->char('year', 4);
             $table->tinyInteger('total_alternatives')->unsigned();
-            $table->unsignedTinyInteger('process_id')->index();
+            $table->unsignedTinyInteger('modality_id')->index();
             $table->timestamps();
 
-            $table->foreign('process_id')
+            $table->foreign('modality_id')
                 ->references('id')
-                ->on('processes')
+                ->on('modalities')
                 ->onDelete('cascade');
         });
     }
