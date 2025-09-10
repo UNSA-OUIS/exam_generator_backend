@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Matrix;
+use App\Models\Modality;
 use App\Models\Process;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -19,7 +20,7 @@ class MatrixSeeder extends Seeder
         $matrix = Matrix::create([
             'year' => '2025',
             'total_alternatives' => 5,
-            'process_id' => Process::where('name', 'Ordinario')->first()->id,
+            'modality_id' => Modality::where('name', 'Ordinario')->first()->id,
         ]);
     }
 }

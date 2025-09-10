@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Process;
+use App\Models\Modality;
 use Illuminate\Http\Request;
 
 // php artisan make:controller ProcessController --api --model=Process
@@ -25,7 +25,7 @@ use Illuminate\Http\Request;
  *     )
  * )
  */
-class ProcessController extends Controller
+class ModalityController extends Controller
 {
     /**
      * @OA\Get(
@@ -46,8 +46,8 @@ class ProcessController extends Controller
      */
     public function index()
     {
-        $processes = Process::all();
-        return response()->json($processes);
+        $modalities = Modality::all();
+        return response()->json($modalities);
     }
 
     /**
@@ -102,9 +102,9 @@ class ProcessController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $process = Process::create($validated);
+        $modality = Modality::create($validated);
 
-        return response()->json($process, 201);
+        return response()->json($modality, 201);
     }
 
     /**
@@ -136,9 +136,9 @@ class ProcessController extends Controller
      * 
      * Return data from a specific process
      */
-    public function show(Process $process)
+    public function show(Modality $modality)
     {
-        return response()->json($process);
+        return response()->json($modality);
     }
 
     /**
@@ -198,15 +198,15 @@ class ProcessController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, Process $process)
+    public function update(Request $request, Modality $modality)
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
         ]);
 
-        $process->update($validated);
+        $modality->update($validated);
 
-        return response()->json($process);
+        return response()->json($modality);
     }
 
     /**
@@ -238,9 +238,9 @@ class ProcessController extends Controller
      *     )
      * )
      */
-    public function destroy(Process $process)
+    public function destroy(Modality $modality)
     {
-        $process->delete();
+        $modality->delete();
         return response()->json(null, 204);
     }
 }

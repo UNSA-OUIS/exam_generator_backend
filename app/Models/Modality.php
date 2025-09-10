@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Process extends Model
+class Modality extends Model
 {
-    protected $table = 'processes';
+    protected $table = 'modalities';
 
     protected $fillable = [
         'name'
