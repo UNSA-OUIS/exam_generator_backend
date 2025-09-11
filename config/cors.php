@@ -13,6 +13,7 @@ return [
 
     'allowed_origins' => [
         'http://localhost:5173',
+        'http://10.20.1.4'
     ],
 
     'allowed_origins_patterns' => [],

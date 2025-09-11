@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\BlocksExport;
 use App\Models\Matrix;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 
 class MatrixController extends Controller
 {
@@ -164,11 +162,5 @@ class MatrixController extends Controller
     {
         $matrix->delete();
         return response()->json(null, 204);
-    }
-
-    public function exportBlocks()
-    {
-        $matrixId = 1;
-        return Excel::download(new BlocksExport($matrixId), 'blocks.xlsx');
     }
 }

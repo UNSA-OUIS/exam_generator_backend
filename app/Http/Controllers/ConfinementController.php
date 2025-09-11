@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Confinement;
 use Illuminate\Http\Request;
+use App\Exports\BlocksExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ConfinementController extends Controller
 {
@@ -67,5 +69,10 @@ class ConfinementController extends Controller
     {
         $confinement->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportBlocks($confinementId)
+    {
+        return Excel::download(new BlocksExport($confinementId), 'blocks.xlsx');
     }
 }
