@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('block_id')->constrained('blocks')->onDelete('cascade');
             $table->integer('questions_to_do');
             $table->timestamps();
+
+            $table->unique(['confinement_id', 'block_id']);
         });
     }
 

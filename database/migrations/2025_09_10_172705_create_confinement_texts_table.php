@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('texts_to_do');
             $table->integer('questions_per_text');
             $table->timestamps();
+
+            $table->unique(['confinement_id', 'block_id', 'questions_per_text']);
         });
     }
 
