@@ -60,6 +60,14 @@ class ConfinementBlockController extends Controller
         return response()->json($confinementBlock);
     }
 
+    public function byConfinement($confinementId)
+    {
+        $confinementBlocks = ConfinementBlock::with(['confinement', 'block'])
+            ->where('confinement_id', $confinementId)
+            ->get();
+
+        return response()->json($confinementBlocks);
+    }
     /**
      * Remove the specified resource from storage.
      */

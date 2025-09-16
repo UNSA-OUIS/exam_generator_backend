@@ -25,8 +25,8 @@ class ConfinementController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'started_at' => 'required|date',
-            'ended_at' => 'required|date|after:started_at',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
             'total' => 'required|integer|min:1'
         ]);
 
