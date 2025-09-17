@@ -70,4 +70,13 @@ class ConfinementTextController extends Controller
         $confinementText->delete();
         return response()->json(null, 204);
     }
+
+     public function byConfinement($confinementId)
+    {
+        $confinementTexts = ConfinementText::with(['confinement', 'block'])
+            ->where('confinement_id', $confinementId)
+            ->get();
+
+        return response()->json($confinementTexts);
+    }
 }
