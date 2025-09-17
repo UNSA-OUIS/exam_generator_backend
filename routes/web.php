@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlockController;
+use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\ConfinementBlockController;
 use App\Http\Controllers\ConfinementController;
 use App\Http\Controllers\ConfinementTextController;
@@ -28,7 +29,8 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
-
+    Route::get('/confinements/{confinement}/blocks', [ConfinementBlockController::class, 'byConfinement']);
+    Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
     Route::apiResources([
         'modalities' => ModalityController::class,
         'matrices' => MatrixController::class,
@@ -40,6 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'exam_texts' => ExamTextController::class,
         'confinement_blocks' => ConfinementBlockController::class,
         'confinement_texts' => ConfinementTextController::class,
+        'collaborators' => CollaboratorController::class,
     ]);
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
