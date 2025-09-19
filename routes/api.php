@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlockController;
+use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\ConfinementBlockController;
 use App\Http\Controllers\ConfinementController;
 use App\Http\Controllers\ConfinementTextController;
@@ -41,7 +42,11 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name(  'login')
         'exam_texts' => ExamTextController::class,
         'confinement_blocks' => ConfinementBlockController::class,
         'confinement_texts' => ConfinementTextController::class,
+        'collaborators' => CollaboratorController::class,
+
     ]);
+    Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
+
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
 

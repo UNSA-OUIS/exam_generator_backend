@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
     Route::get('/confinements/{confinement}/blocks', [ConfinementBlockController::class, 'byConfinement']);
     Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
+    Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
     Route::apiResources([
         'modalities' => ModalityController::class,
         'matrices' => MatrixController::class,
@@ -44,6 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'confinement_texts' => ConfinementTextController::class,
         'collaborators' => CollaboratorController::class,
     ]);
+    Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
 });
