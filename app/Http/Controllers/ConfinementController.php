@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Confinement;
 use Illuminate\Http\Request;
 use App\Exports\BlocksExport;
+use App\Exports\TextsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ConfinementController extends Controller
@@ -74,5 +75,10 @@ class ConfinementController extends Controller
     public function exportBlocks($confinementId)
     {
         return Excel::download(new BlocksExport($confinementId), 'blocks.xlsx');
+    }
+
+    public function exportTexts($confinementId)
+    {
+        return Excel::download(new TextsExport($confinementId), 'texts.xlsx');
     }
 }
