@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->text('statement');
-            $table->enum('difficulty', ['FACIL', 'MEDIO', 'DIFICIL']);
-            $table->enum('status', ['DISPONIBLE', 'NO DISPONIBLE', 'USADA', 'DESCARTADA']);
+            $table->enum('difficulty', ['EASY', 'MEDIUM', 'HARD']);
+            $table->enum('status', ['AVAILABLE', 'UNAVAILABLE', 'USED', 'RETIRED'])->default('AVAILABLE');
             $table->unsignedInteger('block_id');
             $table->foreignUuid('text_id')->nullable()->constrained('texts');
             $table->unsignedInteger('formulator_id')->constrained('collaborators');

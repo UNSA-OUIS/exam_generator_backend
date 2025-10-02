@@ -61,8 +61,6 @@ class ConfinementController extends Controller
         return response()->json($confinement);
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      */

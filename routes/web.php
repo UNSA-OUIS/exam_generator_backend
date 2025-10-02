@@ -9,6 +9,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamTextController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\MatrixDetailController;
 use App\Http\Controllers\ModalityController;
@@ -48,8 +49,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'collaborators' => CollaboratorController::class,
     ]);
 
-
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('/masters/generate', [MasterController::class, 'generate']);
 });
 
 Route::get('/confinement/{confinement_id}/export', [ConfinementController::class, 'exportBlocks']);
