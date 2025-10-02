@@ -13,6 +13,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\MatrixDetailController;
 use App\Http\Controllers\ModalityController;
+use App\Http\Controllers\PDFController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RequireMasterKey;
 use Illuminate\Http\Request;
@@ -55,3 +56,5 @@ Route::post('/reset-password', [UserController::class, 'resetPassword']);
 
 Route::get('/matrix/{matrix_id}/export', [MatrixController::class, 'exportBlocks']);
 Route::post('/masters/generate', [MasterController::class, 'generate']);
+Route::get('/exams/{exam}/master', [MasterController::class, 'index']);
+Route::get('/exams/{exam_id}/master/{area}/generate', [PDFController::class, 'generateMasterPdf']);

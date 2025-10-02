@@ -52,5 +52,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
     Route::post('/masters/generate', [MasterController::class, 'generate']);
 });
-
-Route::get('/confinement/{confinement_id}/export', [ConfinementController::class, 'exportBlocks']);
