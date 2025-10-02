@@ -46,7 +46,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'collaborators' => CollaboratorController::class,
     ]);
     Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
-    Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
 });

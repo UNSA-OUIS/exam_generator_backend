@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Matrix;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MatrixController extends Controller
 {
@@ -56,7 +57,7 @@ class MatrixController extends Controller
     {
         $validated = $request->validate([
             'year' => 'required|digits:4',
-            'process_id' => 'required|exists:processes,id',
+            'modality_id' => 'required|exists:processes,id',
             'total_alternatives' => 'required|integer',
         ]);
 

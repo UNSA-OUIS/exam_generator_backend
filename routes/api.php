@@ -46,6 +46,7 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name(  'login')
 
     ]);
     Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
+    Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
 
 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
