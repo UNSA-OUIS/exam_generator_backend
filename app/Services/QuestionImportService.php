@@ -104,7 +104,7 @@ class QuestionImportService
                 $question = Question::create([
                     'statement' => $q['statement'],
                     'difficulty' => $q['difficulty'],
-                    'status' => 'DISPONIBLE',
+                    'status' => 'AVAILABLE',
                     'block_id' => $block->id,
                     'text_id' => $q['text_id'] ? ($textMap[$q['text_id']] ?? null) : null,
                     'formulator_id' => $collaboratorMap[$q['formulator']] ?? null,
