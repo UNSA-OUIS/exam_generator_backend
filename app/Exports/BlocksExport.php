@@ -4,7 +4,6 @@ namespace App\Exports;
 
 use App\Models\Block;
 use App\Models\ConfinementBlock;
-use App\Models\MatrixDetail;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -27,6 +26,17 @@ class BlocksExport implements FromCollection, WithHeadings
     {
         $rows = collect();
 
+        $blocks = Block::whereNull('parent_block_id')->orderBy('code')->get();
+
+        foreach ($blocks as $block) {
+            $this->addBlockRecursive($rows, $block, null);
+        }
+
+        return $rows;
+    }
+
+    protected function addBlockRecursive(Collection &$rows, Block $block, $parentCode)
+    {
         $levelNames = [
             1 => 'EJE TEMATICO',
             2 => 'COMPONENTE',
@@ -35,22 +45,27 @@ class BlocksExport implements FromCollection, WithHeadings
             5 => 'SUBSUBTEMA',
         ];
 
-        $confinementBlocks = ConfinementBlock::with('block.parentBlock')
-            ->where('confinement_id', $this->confinementId)
+        // 👇 Now using ConfinementBlock instead of MatrixDetail
+        $confinementBlock = ConfinementBlock::where('confinement_id', $this->confinementId)
+            ->where('block_id', $block->id)
+            ->first();
+
+        $total = $confinementBlock ? $confinementBlock->questions_to_do : null;
+
+        $rows->push([
+            $block->code,
+            $levelNames[$block->level_id] ?? '',
+            $block->name,
+            $parentCode,
+            $total,
+        ]);
+
+        $children = Block::where('parent_block_id', $block->id)
+            ->orderBy('code')
             ->get();
 
-        foreach ($confinementBlocks as $cblock) {
-            $block = $cblock->block;
-            $total = $cblock->questions_to_do;
-            $rows->push([
-                $block->code,
-                $levelNames[$block->level_id] ?? '',
-                $block->name,
-                $block->parentBlock ? $block->parentBlock->code : '',
-                $total,
-            ]);
+        foreach ($children as $child) {
+            $this->addBlockRecursive($rows, $child, $block->code);
         }
-
-        return $rows;
     }
 }

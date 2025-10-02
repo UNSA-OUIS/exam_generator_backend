@@ -23,7 +23,7 @@ class Question extends Model
         'formulator_id',
         'validator_id',
         'style_editor_id',
-        'digitador_id',
+        'digitizer_id',
         'resolution_path',
         'answer',
         'exam_id',
@@ -58,22 +58,22 @@ class Question extends Model
 
     public function formulator()
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(Collaborator::class);
     }
 
     public function validator()
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(Collaborator::class);
     }
 
     public function style_editor()
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(Collaborator::class);
     }
 
-    public function digitador()
+    public function digitizer()
     {
-        return $this->belongsTo(Participant::class);
+        return $this->belongsTo(Collaborator::class);
     }
 
     public function exam()

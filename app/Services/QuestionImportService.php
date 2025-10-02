@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Block;
+use App\Models\Collaborator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use App\Models\Question;
@@ -10,7 +11,6 @@ use App\Models\Option;
 use App\Models\QuestionArea;
 use App\Models\QuestionImage;
 use App\Models\Text;
-use App\Models\Participant;
 use Exception;
 
 class QuestionImportService
@@ -23,8 +23,8 @@ class QuestionImportService
 
         $json = json_decode(file_get_contents($jsonFilePath), true);
 
-        if (!isset($json['questions'], $json['texts'], $json['participants'])) {
-            return ['success' => false, 'message' => 'Invalid JSON structure. Required keys: questions, texts, participants'];
+        if (!isset($json['questions'], $json['texts'], $json['collaborators'])) {
+            return ['success' => false, 'message' => 'Invalid JSON structure. Required keys: questions, texts, collaborators'];
         }
 
         $baseTargetPath = storage_path("app/confinements/{$confinementId}");
@@ -48,7 +48,7 @@ class QuestionImportService
             DB::beginTransaction();
 
             $textMap = [];
-            $participantMap = [];
+            $collaboratorMap = [];
 
             // === TEXTS ===
             foreach ($json['texts'] as $text) {
@@ -61,21 +61,20 @@ class QuestionImportService
                 $textMap[$text['id']] = $newText->id;
             }
 
-            // === PARTICIPANTS ===
-            foreach ($json['participants'] as $p) {
-                $existing = Participant::where('dni', $p['dni'])->first();
+            // === COLLABORATORS ===
+            foreach ($json['collaborators'] as $p) {
+                $existing = Collaborator::where('dni', $p['dni'])->first();
 
                 if (!$existing) {
-                    $participant = Participant::create([
+                    $collaborator = Collaborator::create([
                         'dni' => $p['dni'],
                         'name' => $p['name'],
-                        'email' => $p['email']
                     ]);
                 } else {
-                    $participant = $existing;
+                    $collaborator = $existing;
                 }
 
-                $participantMap[$p['dni']] = $participant->id;
+                $collaboratorMap[$p['dni']] = $collaborator->id;
             }
 
             $importedCount = 0;
@@ -89,14 +88,14 @@ class QuestionImportService
                     throw new Exception("Resolution file '{$resolutionFilename}' not found in destination folder.");
                 }
 
-                // Validate participants by dni
-                foreach (['formulator', 'validator', 'style_editor'] as $role) {
-                    if (!isset($participantMap[$q[$role]])) {
-                        throw new Exception("Participant with DNI '{$q[$role]}' not found for role '{$role}' in question ID '{$q['id']}'");
+                // Validate collaborators by dni
+                foreach (['formulator', 'validator', 'style_editor', 'digitizer'] as $role) {
+                    if (!isset($collaboratorMap[$q[$role]]) && !empty($q[$role])) {
+                        throw new Exception("Collaborator with DNI '{$q[$role]}' not found for role '{$role}' in question ID '{$q['id']}'");
                     }
                 }
 
-                $block = Block::where('code', $q['block'])->first();
+                $block = Block::where('code', trim($q['block']))->first();
 
                 if (!$block) {
                     throw new Exception("Block with code '{$q['block']}' not found for question ID '{$q['id']}'");
@@ -108,10 +107,10 @@ class QuestionImportService
                     'status' => 'DISPONIBLE',
                     'block_id' => $block->id,
                     'text_id' => $q['text_id'] ? ($textMap[$q['text_id']] ?? null) : null,
-                    'formulator_id' => $participantMap[$q['formulator']],
-                    'validator_id' => $participantMap[$q['validator']],
-                    'style_editor_id' => $participantMap[$q['style_editor']],
-                    'digitador_id' => $participantMap[$q['digitador']],
+                    'formulator_id' => $collaboratorMap[$q['formulator']] ?? null,
+                    'validator_id' => $collaboratorMap[$q['validator']] ?? null,
+                    'style_editor_id' => $collaboratorMap[$q['style_editor']] ?? null,
+                    'digitizer_id' => $collaboratorMap[$q['digitizer']] ?? null,
                     'resolution_path' => "confinements/{$confinementId}/resolutions/{$resolutionFilename}",
                     'answer' => $q['answer'],
                     'confinement_id' => $confinementId,
@@ -163,6 +162,10 @@ class QuestionImportService
             ];
         } catch (Exception $e) {
             DB::rollBack();
+            // === Cleanup filesystem on error ===
+            if (File::exists($baseTargetPath)) {
+                File::deleteDirectory($baseTargetPath);
+            }
             return [
                 'success' => false,
                 'message' => 'Import failed: ' . $e->getMessage()

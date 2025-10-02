@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->index();
             $table->text('description');
             $table->tinyInteger('total_variations')->default(1);
-            //$table->
             $table->timestamps();
         });
     }

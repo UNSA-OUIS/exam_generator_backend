@@ -24,7 +24,13 @@ class ImportQuestions extends Command
 
         // If no images path is passed, create a temporary empty one
         if (!is_dir($imagesPath)) {
-            mkdir($imagesPath, 0755, true);
+            $this->error("La carpeta de imagenes no existe!");
+            return 1;
+        }
+
+        if (!is_dir($resolutionsPath)) {
+            $this->error("La carpeta de resoluciones no existe!");
+            return 1;
         }
 
         $this->info("Starting import...");

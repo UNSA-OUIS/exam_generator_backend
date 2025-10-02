@@ -43,13 +43,13 @@ class Matrix extends Model
 {
     protected $fillable = [
         'year',
-        'process_id',
+        'modality_id',
         'total_alternatives',
     ];
 
-    public function process()
+    public function modality()
     {
-        return $this->belongsTo(Process::class);
+        return $this->belongsTo(Modality::class);
     }
 
     public function details()

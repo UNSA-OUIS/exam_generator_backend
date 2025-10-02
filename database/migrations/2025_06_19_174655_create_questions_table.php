@@ -19,10 +19,10 @@ return new class extends Migration
             $table->enum('status', ['DISPONIBLE', 'NO DISPONIBLE', 'USADA', 'DESCARTADA']);
             $table->unsignedInteger('block_id');
             $table->foreignUuid('text_id')->nullable()->constrained('texts');
-            $table->unsignedInteger('formulator_id')->constrained('participants');
-            $table->unsignedInteger('validator_id')->constrained('participants');
-            $table->unsignedInteger('style_editor_id')->constrained('participants');
-            $table->unsignedInteger('digitador_id')->constrained('participants');
+            $table->unsignedInteger('formulator_id')->constrained('collaborators');
+            $table->unsignedInteger('validator_id')->constrained('collaborators');
+            $table->unsignedInteger('style_editor_id')->constrained('collaborators');
+            $table->unsignedInteger('digitizer_id')->constrained('collaborators');
             $table->text('resolution_path');
             $table->unsignedTinyInteger('answer');
             $table->foreignUuid('exam_id')->nullable()->constrained('exams');
