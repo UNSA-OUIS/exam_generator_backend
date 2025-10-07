@@ -52,5 +52,7 @@ class MatrixDetailSeeder extends Seeder
                 }
             }
         }
+
+        MatrixDetail::whereNotIn('block_id', [2, 5, 6])->delete();
     }
 }

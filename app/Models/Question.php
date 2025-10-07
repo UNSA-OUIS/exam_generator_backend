@@ -95,4 +95,9 @@ class Question extends Model
     {
         return $this->belongsTo(User::class, 'modified_by');
     }
+
+    public function images()
+    {
+        return $this->hasMany(QuestionImage::class, 'question_id');
+    }
 }

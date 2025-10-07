@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Exam;
 use App\Models\MatrixDetail;
 use App\Models\Master;
 use App\Models\Question;
@@ -12,19 +13,34 @@ use Illuminate\Support\Facades\Log;
 
 class MasterController extends Controller
 {
+    public function index(Exam $exam)
+    {
+        $masters = Master::with(['question.block', 'question.options'])->where('exam_id', $exam->id)->get();
+        return response()->json($masters);
+    }
+
     /**
      * Generate master layout for a given exam and area.
      */
-    public function generate(Request $request)
+    public function generate(/*Request $request*/$examId = null, $area = null)
     {
+<<<<<<< HEAD
         Log::info('Generating master layout with data: ', $request->all());
         $request->validate([
+=======
+        //Log::info($request->all());
+
+        /*$request->validate([
+>>>>>>> de8f223cc411e9528850ee5ec2d13fde5cd5616a
             'exam_id' => 'required|uuid',
             'area' => 'required|string'
         ]);
 
         $examId = $request->input('exam_id');
-        $area = $request->input('area');
+        $area = $request->input('area');*/
+
+        //$examId = '0199a5c3-730b-703c-b172-8c7578fbedbd'; // Example UUID
+        //$area = 'SOCIALES';
 
         DB::beginTransaction();
 
@@ -38,7 +54,7 @@ class MasterController extends Controller
                         ->where('area', $area);
                 })
                 ->update([
-                    'status' => 'DISPONIBLE',
+                    'status' => 'AVAILABLE',
                     'exam_id' => null
                 ]);
 
@@ -60,10 +76,10 @@ class MasterController extends Controller
             foreach ($details as $detail) {
                 // === Fetch available questions for this block/difficulty/area ===
                 $available = Question::query()
-                    ->where('status', 'DISPONIBLE')
+                    ->where('status', 'AVAILABLE')
                     ->where('block_id', $detail->block_id)
-                    ->where('difficulty', $detail->difficulty)
-                    ->whereHas('areas', fn($q) => $q->where('area', $area))
+                    //->where('difficulty', $detail->difficulty)
+                    //->whereHas('areas', fn($q) => $q->where('area', $area))
                     ->inRandomOrder()
                     ->limit($detail->questions_required)
                     ->get();
@@ -71,7 +87,7 @@ class MasterController extends Controller
                 if ($available->count() < $detail->questions_required) {
                     throw new Exception(
                         "Not enough questions for block {$detail->block_id}, " .
-                            "difficulty {$detail->difficulty}, area {$area}. " .
+                            "difficulty {$detail->difficulty->value}, area {$area}. " .
                             "Required {$detail->questions_required}, found {$available->count()}"
                     );
                 }
