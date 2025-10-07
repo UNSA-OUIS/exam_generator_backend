@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ExamController extends Controller
 {
@@ -21,13 +22,14 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Creating a new exam with data: ', $request->all());
         $validated = $request->validate([
             'matrix_id' => 'required|exists:matrices,id',
             'description' => 'required|string',
             'total_variations' => 'required|integer',
         ]);
 
-        $validated['user_id'] = $request->user()->id; // Assuming the user is authenticated
+        $validated['user_id'] = 1; // Assuming the user is authenticated
 
         $exam = Exam::create($validated);
 

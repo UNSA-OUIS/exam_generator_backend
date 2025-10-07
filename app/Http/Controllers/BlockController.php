@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Block;
 use App\Models\Level;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class BlockController extends Controller
 {
@@ -26,6 +27,7 @@ class BlockController extends Controller
             'level_id' => 'required|exists:levels,id',
             'name' => 'required|string|max:255',
             'parent_block_id' => 'nullable|exists:blocks,id',
+            'has_text' => 'required|boolean',
         ]);
 
 
@@ -64,6 +66,7 @@ class BlockController extends Controller
         $validated = $request->validate([
             //'level_id' => 'sometimes|required|exists:levels,id',
             'name' => 'sometimes|required|string|max:255',
+            'has_text' => 'sometimes|required|boolean',
             //'parent_block_id' => 'nullable|exists:blocks,id',
         ]);
 

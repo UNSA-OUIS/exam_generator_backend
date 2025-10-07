@@ -30,6 +30,8 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
 
 //Route::middleware(['auth:sanctum'])->group(function () {
 Route::get('/user', [UserController::class, 'show']);
+Route::post('/masters/generate', [MasterController::class, 'generate']);
+
 Route::get('/confinements/{confinement}/blocks', [ConfinementBlockController::class, 'byConfinement']);
 Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
 Route::apiResources([
@@ -50,9 +52,9 @@ Route::apiResources([
     Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
 
 
+
 Route::post('/reset-password', [UserController::class, 'resetPassword']);
 
 //});
 
 Route::get('/matrix/{matrix_id}/export', [MatrixController::class, 'exportBlocks']);
-Route::post('/masters/generate', [MasterController::class, 'generate']);

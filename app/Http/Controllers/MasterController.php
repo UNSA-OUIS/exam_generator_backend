@@ -8,6 +8,7 @@ use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class MasterController extends Controller
 {
@@ -16,6 +17,7 @@ class MasterController extends Controller
      */
     public function generate(Request $request)
     {
+        Log::info('Generating master layout with data: ', $request->all());
         $request->validate([
             'exam_id' => 'required|uuid',
             'area' => 'required|string'

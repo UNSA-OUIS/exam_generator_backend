@@ -11,10 +11,8 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:5173',
-        'http://10.20.1.4'
-    ],
+    'allowed_origins' => ['*'], // Solo para desarrollo
+
 
     'allowed_origins_patterns' => [],
 

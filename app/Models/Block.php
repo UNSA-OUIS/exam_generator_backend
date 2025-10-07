@@ -11,6 +11,7 @@ class Block extends Model
         'name',
         'level_id',
         'parent_block_id',
+        'has_text',
     ];
 
     public function level()

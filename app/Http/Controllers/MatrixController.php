@@ -25,7 +25,7 @@ class MatrixController extends Controller
      */
     public function index()
     {
-        $matrices = Matrix::all();
+        $matrices = Matrix::with('modality')->get();
         return response()->json($matrices);
     }
 
@@ -55,9 +55,10 @@ class MatrixController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Creating new matrix with data: ', $request->all());
         $validated = $request->validate([
             'year' => 'required|digits:4',
-            'modality_id' => 'required|exists:processes,id',
+            'modality_id' => 'required|exists:modalities,id',
             'total_alternatives' => 'required|integer',
         ]);
 
@@ -90,7 +91,7 @@ class MatrixController extends Controller
      */
     public function show(Matrix $matrix)
     {
-        $matrix->load('process', 'details');
+        $matrix->load('modality', 'details');
         return response()->json($matrix);
     }
 
@@ -129,7 +130,7 @@ class MatrixController extends Controller
     {
         $validated = $request->validate([
             'year' => 'sometimes|required|digits:4',
-            'process_id' => 'sometimes|required|exists:processes,id',
+            'modality_id' => 'sometimes|required|exists:modalities,id',
             'total_alternatives' => 'sometimes|required|integer',
         ]);
 
