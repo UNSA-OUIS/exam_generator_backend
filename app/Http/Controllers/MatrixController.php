@@ -24,7 +24,7 @@ class MatrixController extends Controller
      */
     public function index()
     {
-        $matrices = Matrix::all();
+        $matrices = Matrix::with('modality')->get();
         return response()->json($matrices);
     }
 

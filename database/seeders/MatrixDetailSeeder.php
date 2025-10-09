@@ -25,7 +25,7 @@ class MatrixDetailSeeder extends Seeder
 
         $QUESTIONS_PER_COMPONENT = 3;
         foreach ($areas as $area) {
-            if ($area === AreaEnum::TODAS) {
+            if ($area === AreaEnum::UNICA) {
                 continue;
             }
             foreach ($ejes as $eje) {

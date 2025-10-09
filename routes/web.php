@@ -14,6 +14,7 @@ use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\MatrixDetailController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionImportController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RequireMasterKey;
@@ -36,6 +37,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
     Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
     Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
+
+    Route::get('questions', [QuestionController::class, 'index']);
+    Route::get('questions/{id}', [QuestionController::class, 'show']);
 
     Route::apiResources([
         'modalities' => ModalityController::class,

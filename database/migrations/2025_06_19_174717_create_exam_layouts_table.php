@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('exam_layouts', function (Blueprint $table) {
             $table->id();
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
+            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
             $table->foreignUuid('exam_id')->constrained('exams');
             $table->unsignedTinyInteger('variation');
             $table->unsignedTinyInteger('position');

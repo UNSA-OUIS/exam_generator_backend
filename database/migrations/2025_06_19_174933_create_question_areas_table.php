@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('question_areas', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->foreignUuid('question_id')->constrained('questions');
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
+            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
         });
 
         DB::statement("ALTER TABLE question_areas ALTER COLUMN area TYPE area_enum USING area::area_enum;");

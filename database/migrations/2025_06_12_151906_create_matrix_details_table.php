@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('matrix_details', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedTinyInteger('matrix_id')->index();
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
+            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
 
             $table->unsignedInteger('block_id')->index();
             $table->enum('difficulty', ['FACIL', 'MEDIO', 'DIFICIL']);

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class QuestionImportController extends Controller
 {
@@ -75,6 +76,7 @@ class QuestionImportController extends Controller
                     //'output' => $output,
                 ]);
             } else {
+                Log::info("Question import failed: " . $output);
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al importar preguntas.',

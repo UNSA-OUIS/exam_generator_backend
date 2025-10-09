@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('exam_texts', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('exam_id')->constrained('exams');
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS']);
+            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
             $table->unsignedBigInteger('block_id')->index();
             $table->unsignedTinyInteger('total_texts');
             $table->timestamps();

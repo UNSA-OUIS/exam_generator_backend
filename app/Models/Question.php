@@ -32,6 +32,10 @@ class Question extends Model
         'modified_by',
     ];
 
+    protected $hidden = [
+        'answer',
+    ];
+
     /**
      * Generate a new UUID for the model.
      */
@@ -99,5 +103,10 @@ class Question extends Model
     public function images()
     {
         return $this->hasMany(QuestionImage::class, 'question_id');
+    }
+
+    public function areas()
+    {
+        return $this->hasMany(QuestionArea::class, 'question_id');
     }
 }

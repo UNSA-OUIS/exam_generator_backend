@@ -9,17 +9,17 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    DB::statement("
+    {
+        DB::statement("
         DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'area_enum') THEN
-                CREATE TYPE area_enum AS ENUM ('BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'TODAS');
+                CREATE TYPE area_enum AS ENUM ('BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA');
             END IF;
         END$$;
     ");
 
-    DB::statement("
+        DB::statement("
         DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'difficulty_enum') THEN
@@ -27,7 +27,7 @@ return new class extends Migration
             END IF;
         END$$;
     ");
-}
+    }
 
     /**
      * Reverse the migrations.
