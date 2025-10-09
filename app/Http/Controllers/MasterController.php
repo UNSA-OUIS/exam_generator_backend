@@ -22,20 +22,15 @@ class MasterController extends Controller
     /**
      * Generate master layout for a given exam and area.
      */
-    public function generate(/*Request $request*/$examId = null, $area = null)
+    public function generate(Request $request)
     {
-        //Log::info($request->all());
-
-        /*$request->validate([
+        $request->validate([
             'exam_id' => 'required|uuid',
-            'area' => 'required|string'
+            'area' => 'required|in:SOCIALES,INGENIERIAS,BIOMEDICAS'
         ]);
 
         $examId = $request->input('exam_id');
-        $area = $request->input('area');*/
-
-        //$examId = '0199a5c3-730b-703c-b172-8c7578fbedbd'; // Example UUID
-        //$area = 'SOCIALES';
+        $area = $request->input('area');
 
         DB::beginTransaction();
 
@@ -48,6 +43,7 @@ class MasterController extends Controller
                         ->where('exam_id', $examId)
                         ->where('area', $area);
                 })
+                ->where('status', 'UNAVAILABLE')
                 ->update([
                     'status' => 'AVAILABLE',
                     'exam_id' => null
@@ -62,7 +58,7 @@ class MasterController extends Controller
             $details = MatrixDetail::where('area', $area)->get();
 
             if ($details->isEmpty()) {
-                throw new Exception("No matrix details found for area {$area}");
+                throw new Exception("Falta la configuracion de matriz para {$area}");
             }
 
             $mastersToInsert = [];
@@ -81,9 +77,9 @@ class MasterController extends Controller
 
                 if ($available->count() < $detail->questions_required) {
                     throw new Exception(
-                        "Not enough questions for block {$detail->block_id}, " .
-                            "difficulty {$detail->difficulty->value}, area {$area}. " .
-                            "Required {$detail->questions_required}, found {$available->count()}"
+                        "No hay suficientes preguntas para el bloque {$detail->block_id}, " .
+                            "dificultad {$detail->difficulty->value}, area {$area}. " .
+                            "Requeridos {$detail->questions_required}, encontrados {$available->count()}"
                     );
                 }
 
@@ -115,8 +111,7 @@ class MasterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Master layout generated successfully.',
-                'count' => count($mastersToInsert)
+                'message' => 'Master generado exitosamente.',
             ]);
         } catch (Exception $e) {
             DB::rollBack();

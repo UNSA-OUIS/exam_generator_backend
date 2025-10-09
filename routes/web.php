@@ -13,9 +13,10 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\MatrixDetailController;
 use App\Http\Controllers\ModalityController;
+use App\Http\Controllers\PDFController;
+use App\Http\Controllers\QuestionImportController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RequireMasterKey;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -49,6 +50,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'collaborators' => CollaboratorController::class,
     ]);
 
+    Route::post('/import-questions', [QuestionImportController::class, 'import']);
+    Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generateMasterPdf']);
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
     Route::post('/masters/generate', [MasterController::class, 'generate']);
 });

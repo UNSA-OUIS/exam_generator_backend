@@ -57,4 +57,3 @@ Route::post('/reset-password', [UserController::class, 'resetPassword']);
 Route::get('/matrix/{matrix_id}/export', [MatrixController::class, 'exportBlocks']);
 Route::post('/masters/generate', [MasterController::class, 'generate']);
 Route::get('/exams/{exam}/master', [MasterController::class, 'index']);
-Route::get('/exams/{exam_id}/master/{area}/generate', [PDFController::class, 'generateMasterPdf']);

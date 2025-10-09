@@ -9,6 +9,7 @@ class Block extends Model
     protected $fillable = [
         'code',
         'name',
+        'has_text',
         'level_id',
         'parent_block_id',
     ];
