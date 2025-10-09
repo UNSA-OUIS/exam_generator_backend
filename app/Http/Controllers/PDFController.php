@@ -31,8 +31,8 @@ class PDFController extends Controller
     \\usepackage{enumitem}
     \\setlength{\\columnsep}{.7cm} \\pagestyle{fancy}
     \\fancyhead[LE,RO]{\\textsf{MASTER}}
-    \\fancyhead[LO,RE]{\\scriptsize{\\textbf{Examen de conocimientos}}}
-    \\chead{Componente: \\huge{\\textrm{{$componentName}}}}
+    \\fancyhead[LO,RE]{\\scriptsize{\\textbf{Bloques y niveles}}}
+    \\chead{Area: \\huge{\\textrm{{$componentName}}}}
     \\fancyfoot[LE,RO]{\\Large{\\textbf{\\textsf{\\thepage}}}}
     \\fancyfoot[LO,RE]{\\vspace {-4mm}
     \\includegraphics[scale=0.6]{logounsa.eps}}
@@ -89,6 +89,7 @@ class PDFController extends Controller
         // === Load questions WITH images ===
         $questions = Question::whereIn('id', $questionIds)
             ->with(['options', 'text', 'block.level', 'images'])
+            ->orderBy('block_id')
             ->orderByRaw("array_position(ARRAY[{$quotedIds}]::uuid[], id::uuid)")
             ->get();
 
@@ -124,12 +125,16 @@ class PDFController extends Controller
 
         $counter = 1;
 
+        $last_block_id = null;
         foreach ($questions as $question) {
-            $blockName = $question->block?->name ?? '';
-            $levelName = strtoupper($question->block?->level?->name ?? '');
+            if ($question->block_id !== $last_block_id) {
+                $blockComponent = Block::where('code', substr($question->block->code, 0, 4))->first();
+                $componentName = strtoupper($blockComponent?->name) ?? '';
 
-            if ($blockName || $levelName) {
-                $latex .= "\\subsubsection*{{$levelName} {$blockName}}\n";
+                if ($componentName != '') {
+                    $latex .= "\\subsubsection*{{$componentName}}\n";
+                }
+                $last_block_id = $question->block_id;
             }
 
             if ($question->text) {
