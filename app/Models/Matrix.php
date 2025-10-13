@@ -52,8 +52,8 @@ class Matrix extends Model
         return $this->belongsTo(Modality::class);
     }
 
-    public function details()
+    public function requirements()
     {
-        return $this->hasMany(MatrixDetail::class);
+        return $this->hasMany(MatrixRequirement::class);
     }
 }

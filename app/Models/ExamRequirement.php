@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use App\Enums\AreaEnum;
 use App\Enums\DifficultyEnum;
 
-class MatrixDetail extends Model
+class ExamRequirement extends Model
 {
     protected $fillable = [
-        'matrix_id',
+        'exam_id',
         'area',
         'block_id',
         'difficulty',
-        'questions_required',
-        'questions_to_do',
+        'n_questions',
+        'parent_id',
     ];
 
     protected $casts = [
@@ -22,13 +22,18 @@ class MatrixDetail extends Model
         'difficulty' => DifficultyEnum::class,
     ];
 
-    public function matrix()
+    public function exam()
     {
-        return $this->belongsTo(Matrix::class);
+        return $this->belongsTo(Exam::class);
     }
 
     public function block()
     {
         return $this->belongsTo(Block::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(ExamRequirement::class, 'parent_id');
     }
 }

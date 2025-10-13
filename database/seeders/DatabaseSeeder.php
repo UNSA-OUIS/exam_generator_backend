@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             ModalitySeeder::class,
             LevelSeeder::class,
             MatrixSeeder::class,
-            MatrixDetailSeeder::class,
+            MatrixRequirementSeeder::class,
             ConfinementSeeder::class,
             ExamSeeder::class
         ]);

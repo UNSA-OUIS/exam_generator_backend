@@ -15,4 +15,9 @@ class Confinement extends Model
         'start_date',
         'end_date',
     ];
+
+    public function requirements()
+    {
+        return $this->hasMany(ConfinementRequirement::class);
+    }
 }

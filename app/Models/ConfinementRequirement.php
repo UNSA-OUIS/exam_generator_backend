@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
+use App\Enums\DifficultyEnum;
 use Illuminate\Database\Eloquent\Model;
 
-class ConfinementBlock extends Model
+class ConfinementRequirement extends Model
 {
     protected $fillable = [
         'confinement_id',
         'block_id',
-        'questions_to_do'
+        'difficulty',
+        'questions_to_do',
+        'parent_id',
+    ];
+
+    protected $casts = [
+        'difficulty' => DifficultyEnum::class,
     ];
 
     public function block()

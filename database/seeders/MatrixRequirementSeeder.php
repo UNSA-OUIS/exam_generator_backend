@@ -6,13 +6,14 @@ use App\Enums\AreaEnum;
 use App\Models\Block;
 use App\Models\Matrix;
 use App\Models\MatrixDetail;
+use App\Models\MatrixRequirement;
 use App\Models\Process;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class MatrixDetailSeeder extends Seeder
+class MatrixRequirementSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -31,28 +32,25 @@ class MatrixDetailSeeder extends Seeder
             foreach ($ejes as $eje) {
                 $children = Block::where('parent_block_id', $eje->id)->get();
                 $total = $children->count() * $QUESTIONS_PER_COMPONENT;
-                $detail = MatrixDetail::create([
+                $eje_req = MatrixRequirement::create([
                     'matrix_id' => $matrix->id,
                     'area' => $area,
                     'block_id' => $eje->id,
-                    'difficulty' => 'FACIL',
-                    'questions_required' => $total,
-                    'questions_to_do' => $total * 5
+                    'n_questions' => $total,
                 ]);
 
                 foreach ($children as $component) {
-                    $detail2 = MatrixDetail::create([
+                    $comp_req = MatrixRequirement::create([
                         'matrix_id' => $matrix->id,
                         'area' => $area,
                         'block_id' => $component->id,
-                        'difficulty' => 'FACIL',
-                        'questions_required' => $QUESTIONS_PER_COMPONENT,
-                        'questions_to_do' => $QUESTIONS_PER_COMPONENT * 5
+                        'n_questions' => $QUESTIONS_PER_COMPONENT,
+                        'parent_id' => $eje_req->id,
                     ]);
                 }
             }
         }
 
-        MatrixDetail::whereNotIn('block_id', [2, 5, 6])->delete();
+        MatrixRequirement::whereNotIn('block_id', [2, 5, 6])->delete();
     }
 }

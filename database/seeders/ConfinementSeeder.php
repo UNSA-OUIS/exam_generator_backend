@@ -18,7 +18,6 @@ class ConfinementSeeder extends Seeder
         $confinement = Confinement::create([
             'id' => Str::uuid(),
             'name' => 'internamiento 2025 1',
-            'total' => 100,
             'start_date' => '2025-01-01',
             'end_date' => '2025-12-31',
         ]);

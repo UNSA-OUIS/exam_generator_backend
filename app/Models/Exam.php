@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ExamStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
@@ -17,6 +18,10 @@ class Exam extends Model
         'user_id',
         'description',
         'total_variations',
+    ];
+
+    protected $casts = [
+        'status' => ExamStatusEnum::class,
     ];
 
     public function matrix()

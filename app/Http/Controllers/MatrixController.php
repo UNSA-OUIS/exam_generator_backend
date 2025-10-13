@@ -89,7 +89,7 @@ class MatrixController extends Controller
      */
     public function show(Matrix $matrix)
     {
-        $matrix->load('process', 'details');
+        $matrix->load('modality', 'details');
         return response()->json($matrix);
     }
 

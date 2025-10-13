@@ -18,8 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->index();
             $table->text('description');
             $table->tinyInteger('total_variations')->default(1);
+            $table->text('status');
             $table->timestamps();
         });
+
+        DB::statement("ALTER TABLE exams ALTER COLUMN status TYPE exam_status_enum USING status::exam_status_enum;");
     }
 
     /**

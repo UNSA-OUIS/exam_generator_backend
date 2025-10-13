@@ -12,22 +12,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('matrix_details', function (Blueprint $table) {
+        Schema::create('matrix_requirements', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedTinyInteger('matrix_id')->index();
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
-
-            $table->unsignedInteger('block_id')->index();
-            $table->enum('difficulty', ['FACIL', 'MEDIO', 'DIFICIL']);
-
-            $table->unsignedTinyInteger('questions_required')->default(0);
-            $table->unsignedTinyInteger('questions_to_do')->default(0);
+            $table->text('area');
+            $table->unsignedInteger('block_id')->nullable()->index();
+            $table->unsignedTinyInteger('n_questions')->default(0);
+            $table->unsignedInteger('parent_id')->nullable()->index();
             $table->timestamps();
+
+            $table->foreign('block_id')->references('id')->on('blocks')->onDelete('cascade');
+            $table->foreign('matrix_id')->references('id')->on('matrices')->onDelete('cascade');
+            $table->foreign('parent_id')->references('id')->on('matrix_requirements')->onDelete('cascade');
+            $table->unique(['matrix_id', 'area', 'block_id'], 'unique_matrix_area_block');
         });
 
         // Alter columns to use PostgreSQL ENUMs
-        DB::statement("ALTER TABLE matrix_details ALTER COLUMN area TYPE area_enum USING area::area_enum;");
-        DB::statement("ALTER TABLE matrix_details ALTER COLUMN difficulty TYPE difficulty_enum USING difficulty::difficulty_enum;");
+        DB::statement("ALTER TABLE matrix_requirements ALTER COLUMN area TYPE area_enum USING area::area_enum;");
     }
 
     /**
@@ -35,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('matrix_details');
+        Schema::dropIfExists('matrix_requirements');
     }
 };

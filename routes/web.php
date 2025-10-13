@@ -4,6 +4,7 @@ use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CollaboratorController;
 use App\Http\Controllers\ConfinementBlockController;
 use App\Http\Controllers\ConfinementController;
+use App\Http\Controllers\ConfinementRequirementController;
 use App\Http\Controllers\ConfinementTextController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamTextController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MatrixController;
 use App\Http\Controllers\MatrixDetailController;
+use App\Http\Controllers\MatrixRequirementController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\QuestionController;
@@ -33,7 +35,7 @@ Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generat
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
-    Route::get('/confinements/{confinement}/blocks', [ConfinementBlockController::class, 'byConfinement']);
+    Route::get('/confinements/{confinement}/requirements', [ConfinementRequirementController::class, 'byConfinement']);
     Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
     Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
     Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
@@ -46,11 +48,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'matrices' => MatrixController::class,
         'levels' => LevelController::class,
         'blocks' => BlockController::class,
-        'matrix_details' => MatrixDetailController::class,
+        'matrix_requirements' => MatrixRequirementController::class,
         'confinements' => ConfinementController::class,
         'exams' => ExamController::class,
         'exam_texts' => ExamTextController::class,
-        'confinement_blocks' => ConfinementBlockController::class,
+        'confinement_requirements' => ConfinementRequirementController::class,
         'confinement_texts' => ConfinementTextController::class,
         'collaborators' => CollaboratorController::class,
     ]);

@@ -27,6 +27,15 @@ return new class extends Migration
             END IF;
         END$$;
     ");
+
+        DB::statement("
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'exam_status_enum') THEN
+                CREATE TYPE exam_status_enum AS ENUM ('CONFIGURING', 'VALIDATED', 'MASTERED', 'VARIATED', 'APPROVED');
+            END IF;
+        END$$;
+    ");
     }
 
     /**

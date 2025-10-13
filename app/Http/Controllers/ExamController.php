@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ExamStatusEnum;
 use App\Models\Exam;
+use App\Models\ExamRequirement;
+use App\Models\Matrix;
+use App\Models\MatrixRequirement;
 use Illuminate\Http\Request;
 
 class ExamController extends Controller
@@ -27,11 +31,48 @@ class ExamController extends Controller
             'total_variations' => 'required|integer',
         ]);
 
-        $validated['user_id'] = $request->user()->id; // Assuming the user is authenticated
-
+        $validated['user_id'] = $request->user()->id;
+        $validated['status'] = ExamStatusEnum::CONFIGURING;
         $exam = Exam::create($validated);
 
+        $areas = MatrixRequirement::where('matrix_id', $validated['matrix_id'])
+            ->distinct('area')
+            ->pluck('area');
+
+        foreach ($areas as $area) {
+            $root_req = MatrixRequirement::where('matrix_id', $validated['matrix_id'])
+                ->where('area', $area)
+                ->whereNull('parent_id')
+                ->first();
+
+            $this->createExamRequirement($exam->id, $root_req, null);
+
+            ExamRequirement::create([
+                'exam_id' => $exam->id,
+                'area' => $area,
+                'block_id' => $root_req->block_id,
+                'n_questions' => $root_req->n_questions,
+                'parent_id' => null,
+            ]);
+        }
+
         return response()->json($exam, 201);
+    }
+
+    private function createExamRequirement($exam_id, MatrixRequirement $matrixReq, $parent_id)
+    {
+        $examReq = ExamRequirement::create([
+            'exam_id' => $exam_id,
+            'area' => $matrixReq->area,
+            'block_id' => $matrixReq->block_id,
+            'n_questions' => $matrixReq->n_questions,
+            'parent_id' => $parent_id,
+        ]);
+
+        $children = MatrixRequirement::where('parent_id', $matrixReq->id)->get();
+        foreach ($children as $child) {
+            $this->createExamRequirement($exam_id, $child, $examReq->id);
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exam;
 use App\Models\MatrixDetail;
 use App\Models\Master;
+use App\Models\MatrixRequirement;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class MasterController extends Controller
                 ->delete();
 
             // === Load requirements for the given area ===
-            $details = MatrixDetail::where('area', $area)->get();
+            $details = MatrixRequirement::where('area', $area)->get();
 
             if ($details->isEmpty()) {
                 throw new Exception("Falta la configuracion de matriz para {$area}");

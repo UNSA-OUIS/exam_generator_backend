@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ExamStatusEnum;
 use App\Models\Exam;
 use App\Models\Matrix;
-use App\Models\Modality;
-use App\Models\Process;
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class ExamSeeder extends Seeder
 {
@@ -23,6 +20,7 @@ class ExamSeeder extends Seeder
             'user_id' => 1,
             'description' => 'Examen de admisión 2025-I',
             'total_variations' => 3,
+            'status' => ExamStatusEnum::CONFIGURING
         ]);
     }
 }

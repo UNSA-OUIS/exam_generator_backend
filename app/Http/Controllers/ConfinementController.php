@@ -6,6 +6,7 @@ use App\Models\Confinement;
 use Illuminate\Http\Request;
 use App\Exports\BlocksExport;
 use App\Exports\TextsExport;
+use App\Models\ConfinementRequirement;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ConfinementController extends Controller
@@ -32,6 +33,15 @@ class ConfinementController extends Controller
         ]);
 
         $confinement = Confinement::create($validated);
+
+        // Primer requerimiento es el total
+        ConfinementRequirement::create([
+            'confinement_id' => $confinement->id,
+            'block_id' => null,
+            'difficulty' => null,
+            'questions_to_do' => $validated['total'],
+            'parent_id' => null,
+        ]);
 
         return response()->json($confinement, 201);
     }

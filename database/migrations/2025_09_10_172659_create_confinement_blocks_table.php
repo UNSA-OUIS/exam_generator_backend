@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,15 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('confinement_blocks', function (Blueprint $table) {
+        Schema::create('confinement_requirements', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('confinement_id')->constrained('confinements')->onDelete('cascade');
-            $table->foreignId('block_id')->constrained('blocks')->onDelete('cascade');
+            $table->foreignId('block_id')->nullable()->constrained('blocks')->onDelete('cascade');
+            $table->text('difficulty')->nullable();
             $table->integer('questions_to_do');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
 
-            $table->unique(['confinement_id', 'block_id']);
+            $table->foreign('parent_id')->references('id')->on('confinement_requirements')->onDelete('cascade');
+            $table->unique(['confinement_id', 'block_id', 'difficulty'], 'unique_confinement_block_difficulty');
+            $table->index('parent_id');
         });
+
+        DB::statement("ALTER TABLE confinement_requirements ALTER COLUMN difficulty TYPE difficulty_enum USING difficulty::difficulty_enum;");
     }
 
     /**
@@ -27,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('confinement_blocks');
+        Schema::dropIfExists('confinement_requirements');
     }
 };

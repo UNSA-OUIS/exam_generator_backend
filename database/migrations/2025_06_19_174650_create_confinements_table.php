@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('confinements', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->text('name');
-            $table->unsignedTinyInteger('total');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->timestamps();
