@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CollaboratorController;
-use App\Http\Controllers\ConfinementBlockController;
 use App\Http\Controllers\ConfinementController;
 use App\Http\Controllers\ConfinementRequirementController;
 use App\Http\Controllers\ConfinementTextController;
@@ -12,7 +11,6 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MatrixController;
-use App\Http\Controllers\MatrixDetailController;
 use App\Http\Controllers\MatrixRequirementController;
 use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PDFController;
