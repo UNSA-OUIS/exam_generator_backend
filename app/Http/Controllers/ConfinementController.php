@@ -43,7 +43,7 @@ class ConfinementController extends Controller
                 'confinement_id' => $confinement->id,
                 'block_id' => null,
                 'difficulty' => null,
-                'questions_to_do' => $validated['total'],
+                'n_questions' => $validated['total'],
                 'parent_id' => null,
             ]);
             DB::commit();

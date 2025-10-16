@@ -18,6 +18,7 @@ class Exam extends Model
         'user_id',
         'description',
         'total_variations',
+        'status'
     ];
 
     protected $casts = [

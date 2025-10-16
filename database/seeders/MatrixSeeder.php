@@ -19,7 +19,7 @@ class MatrixSeeder extends Seeder
     {
         $matrix = Matrix::create([
             'year' => '2025',
-            'total_alternatives' => 5,
+            'n_alternatives' => 5,
             'modality_id' => Modality::where('name', 'Ordinario')->first()->id,
         ]);
     }

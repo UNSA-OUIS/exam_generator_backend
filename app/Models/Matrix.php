@@ -44,7 +44,7 @@ class Matrix extends Model
     protected $fillable = [
         'year',
         'modality_id',
-        'total_alternatives',
+        'n_alternatives',
     ];
 
     public function modality()

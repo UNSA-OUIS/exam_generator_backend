@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('matrices', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->char('year', 4);
-            $table->tinyInteger('total_alternatives')->unsigned();
+            $table->tinyInteger('n_alternatives')->unsigned();
             $table->unsignedTinyInteger('modality_id')->index();
             $table->timestamps();
 

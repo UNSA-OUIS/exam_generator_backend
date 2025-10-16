@@ -20,6 +20,16 @@ return new class extends Migration
             $table->tinyInteger('total_variations')->default(1);
             $table->text('status');
             $table->timestamps();
+
+            $table->foreign('matrix_id')
+                ->references('id')
+                ->on('matrices')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
 
         DB::statement("ALTER TABLE exams ALTER COLUMN status TYPE exam_status_enum USING status::exam_status_enum;");

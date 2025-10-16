@@ -17,7 +17,7 @@ return new class extends Migration
                 RETURNS TABLE (
                     id BIGINT,
                     parent_id BIGINT,
-                    questions_to_do INT,
+                    n_questions INT,
                     sum_children INT,
                     condition TEXT
                 )
@@ -27,7 +27,7 @@ return new class extends Migration
                     SELECT
                         id,
                         parent_id,
-                        questions_to_do,
+                        n_questions,
                         confinement_id
                     FROM confinement_requirements
                     WHERE confinement_id = p_confinement_id
@@ -35,7 +35,7 @@ return new class extends Migration
                 children_sum AS (
                     SELECT
                         parent_id,
-                        SUM(questions_to_do) AS sum_children
+                        SUM(n_questions) AS sum_children
                     FROM tree
                     WHERE parent_id IS NOT NULL
                     GROUP BY parent_id
@@ -43,12 +43,12 @@ return new class extends Migration
                 SELECT
                     t.id,
                     t.parent_id,
-                    t.questions_to_do,
+                    t.n_questions,
                     COALESCE(cs.sum_children, 0) AS sum_children,
                     CASE
                         WHEN cs.sum_children is NULL THEN 'LEAF'
-                        WHEN cs.sum_children = t.questions_to_do THEN 'COMPLETE'
-                        WHEN cs.sum_children < t.questions_to_do THEN 'INCOMPLETE'
+                        WHEN cs.sum_children = t.n_questions THEN 'COMPLETE'
+                        WHEN cs.sum_children < t.n_questions THEN 'INCOMPLETE'
                         ELSE 'INVALID'
                     END AS condition
                 FROM tree t

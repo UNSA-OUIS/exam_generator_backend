@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AreaEnum;
 use App\Models\Matrix;
+use App\Models\MatrixRequirement;
 use Illuminate\Http\Request;
 
 class MatrixController extends Controller
@@ -56,11 +58,36 @@ class MatrixController extends Controller
     {
         $validated = $request->validate([
             'year' => 'required|digits:4',
-            'process_id' => 'required|exists:processes,id',
-            'total_alternatives' => 'required|integer',
+            'modality_id' => 'required|exists:modalities,id',
+            'n_alternatives' => 'required|integer',
+            'questions_per_area' => 'required|integer',
+            'unique_area' => 'required|boolean',
         ]);
 
         $matrix = Matrix::create($validated);
+
+        if ($validated['unique_area']) {
+            MatrixRequirement::create([
+                'matrix_id' => $matrix->id,
+                'area' => AreaEnum::UNICA,
+                'block_id' => null,
+                'n_questions' => $validated['questions_per_area'],
+                'parent_id' => null,
+            ]);
+        } else {
+            foreach (AreaEnum::cases() as $area) {
+                if ($area !== AreaEnum::UNICA) {
+                    MatrixRequirement::create([
+                        'matrix_id' => $matrix->id,
+                        'area' => $area,
+                        'block_id' => null,
+                        'n_questions' => $validated['questions_per_area'],
+                        'parent_id' => null,
+                    ]);
+                }
+            }
+        }
+
 
         return response()->json($matrix, 201);
     }
@@ -128,8 +155,8 @@ class MatrixController extends Controller
     {
         $validated = $request->validate([
             'year' => 'sometimes|required|digits:4',
-            'process_id' => 'sometimes|required|exists:processes,id',
-            'total_alternatives' => 'sometimes|required|integer',
+            'modality_id' => 'sometimes|required|exists:modalities,id',
+            'n_alternatives' => 'sometimes|required|integer',
         ]);
 
         $matrix->update($validated);

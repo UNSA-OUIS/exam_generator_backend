@@ -18,12 +18,12 @@ return new class extends Migration
             LANGUAGE sql
             AS $$
             WITH RECURSIVE tree AS (
-                SELECT id, parent_id, questions_to_do, confinement_id
+                SELECT id, parent_id, n_questions, confinement_id
                 FROM confinement_requirements
                 WHERE confinement_id = p_confinement_id
             ),
             children_sum AS (
-                SELECT parent_id, SUM(questions_to_do) AS sum_children
+                SELECT parent_id, SUM(n_questions) AS sum_children
                 FROM tree
                 WHERE parent_id IS NOT NULL
                 GROUP BY parent_id
@@ -31,7 +31,7 @@ return new class extends Migration
             SELECT
                 BOOL_AND(
                     cs.sum_children IS NULL
-                    OR cs.sum_children = t.questions_to_do
+                    OR cs.sum_children = t.n_questions
                 ) AS is_complete
             FROM tree t
             LEFT JOIN children_sum cs ON t.id = cs.parent_id;

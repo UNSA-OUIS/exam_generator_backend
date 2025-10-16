@@ -6,6 +6,7 @@ use App\Http\Controllers\ConfinementController;
 use App\Http\Controllers\ConfinementRequirementController;
 use App\Http\Controllers\ConfinementTextController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamRequirementController;
 use App\Http\Controllers\ExamTextController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\LoginController;
@@ -37,6 +38,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
     Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
     Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
+
+    Route::get('/matrices/{matrix}/requirements', [MatrixRequirementController::class, 'byMatrix']);
+
+    Route::get('/exams/{exam}/requirements', [ExamRequirementController::class, 'byExam']);
 
     Route::get('questions', [QuestionController::class, 'index']);
     Route::get('questions/{id}', [QuestionController::class, 'show']);

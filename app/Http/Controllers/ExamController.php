@@ -46,14 +46,6 @@ class ExamController extends Controller
                 ->first();
 
             $this->createExamRequirement($exam->id, $root_req, null);
-
-            ExamRequirement::create([
-                'exam_id' => $exam->id,
-                'area' => $area,
-                'block_id' => $root_req->block_id,
-                'n_questions' => $root_req->n_questions,
-                'parent_id' => null,
-            ]);
         }
 
         return response()->json($exam, 201);

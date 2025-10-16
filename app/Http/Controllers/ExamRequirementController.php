@@ -2,55 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Block;
 use Illuminate\Http\Request;
-use App\Models\MatrixRequirement;
-use App\Services\Requirements\MatrixRequirementService;
-use Illuminate\Support\Facades\Log;
+use App\Models\ExamRequirement;
+use App\Services\Requirements\ExamRequirementService;
 
-class MatrixRequirementController extends Controller
+class ExamRequirementController extends Controller
 {
-    public function __construct(protected MatrixRequirementService $service) {}
+    public function __construct(protected ExamRequirementService $service) {}
 
     public function index()
     {
-        $requirements = MatrixRequirement::with(['block'])->get();
+        $requirements = ExamRequirement::with(['block'])->get();
         return response()->json($requirements);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'matrix_id' => 'required|integer|exists:matrices,id',
-            'parent_id' => 'required|integer|exists:matrix_requirements,id',
+            'exam_id' => 'required|uuid|exists:exams,id',
+            'parent_id' => 'required|integer|exists:exam_requirements,id',
+            'area' => 'required|string',
             'block_id' => 'required|integer|exists:blocks,id',
-            'area' => 'required|string', // Assuming enum handled by model
+            'difficulty' => 'required|string', // Assuming enum validation
             'n_questions' => 'required|integer|min:0',
         ]);
 
         try {
-            $block = Block::find($request->block_id);
-            if ($block->level_id !== 1 && $block->level_id !== 2) {
-                return response()->json(['error' => 'El bloque debe ser de nivel 1 o 2'], 422);
-            }
-
             $created = $this->service->store($validated);
             return response()->json($created, 201);
         } catch (\Throwable $e) {
-            Log::error('Error creating MatrixRequirement: ' . $e->getMessage());
             $status = $e->getCode() ?: 422;
             return response()->json(['error' => $e->getMessage()], $status);
         }
     }
 
-    public function update(Request $request, MatrixRequirement $matrixRequirement)
+    public function update(Request $request, ExamRequirement $examRequirement)
     {
         $validated = $request->validate([
             'n_questions' => 'sometimes|integer|min:0',
         ]);
 
         try {
-            $updated = $this->service->update($matrixRequirement, $validated);
+            $updated = $this->service->update($examRequirement, $validated);
             return response()->json($updated);
         } catch (\Throwable $e) {
             $status = $e->getCode() ?: 422;
@@ -58,16 +51,16 @@ class MatrixRequirementController extends Controller
         }
     }
 
-    public function destroy(MatrixRequirement $matrixRequirement)
+    public function destroy(ExamRequirement $examRequirement)
     {
-        $matrixRequirement->delete();
+        $examRequirement->delete();
         return response()->noContent();
     }
 
-    public function byMatrix(Request $request, $matrixId)
+    public function byExam(Request $request, $examId)
     {
-        $requirements = MatrixRequirement::with(['block'])
-            ->where('matrix_id', $matrixId)
+        $requirements = ExamRequirement::with(['block'])
+            ->where('exam_id', $examId)
             ->when($request->has('area'), function ($query) use ($request) {
                 $query->where('area', $request->input('area'));
             })

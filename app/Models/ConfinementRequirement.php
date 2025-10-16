@@ -11,7 +11,7 @@ class ConfinementRequirement extends Model
         'confinement_id',
         'block_id',
         'difficulty',
-        'questions_to_do',
+        'n_questions',
         'parent_id',
     ];
 
