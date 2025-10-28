@@ -17,8 +17,12 @@ return new class extends Migration
             $table->foreignUuid('exam_id')->constrained('exams');
             $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
             $table->unsignedBigInteger('block_id')->index();
-            $table->unsignedTinyInteger('total_texts');
+            $table->unsignedTinyInteger('n_texts');
+            $table->unsignedTinyInteger('questions_per_text');
             $table->timestamps();
+
+            $table->foreign('block_id')->references('id')->on('blocks')->onDelete('cascade');
+            $table->unique(['exam_id', 'area', 'block_id', 'questions_per_text']);
         });
 
         DB::statement("ALTER TABLE exam_texts ALTER COLUMN area TYPE area_enum USING area::area_enum;");

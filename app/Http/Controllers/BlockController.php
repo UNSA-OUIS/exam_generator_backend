@@ -26,16 +26,21 @@ class BlockController extends Controller
             'level_id' => 'required|exists:levels,id',
             'name' => 'required|string|max:255',
             'parent_block_id' => 'nullable|exists:blocks,id',
+            'has_text' => 'required|boolean',
         ]);
 
+        $level = Level::find($validated['level_id']);
 
         if ($validated['parent_block_id'] == null) {
             // If no parent block is specified, generate a unique code
-            $level = Level::find($validated['level_id']);
+
             $children_count = Block::where('level_id', $validated['level_id'])->count();
             $validated['code'] = str_pad($children_count + 1, 2, '0', STR_PAD_LEFT);
         } else {
             // Generate a code based on the parent block
+            if ($level->stage !== 2 && $request->has_text) {
+                return response()->json(['error' => 'Solo bloques del nivel 2 pueden tener un texto.'], 422);
+            }
             $parentBlock = Block::find($validated['parent_block_id']);
             $children_count = Block::where('parent_block_id', $parentBlock->id)->count();
             $parentCode = $parentBlock->code;
@@ -64,8 +69,13 @@ class BlockController extends Controller
         $validated = $request->validate([
             //'level_id' => 'sometimes|required|exists:levels,id',
             'name' => 'sometimes|required|string|max:255',
+            'has_text' => 'sometimes|required|boolean',
             //'parent_block_id' => 'nullable|exists:blocks,id',
         ]);
+
+        if ($block->level->stage !== 2 && isset($validated['has_text']) && $validated['has_text']) {
+            return response()->json(['error' => 'Solo bloques del nivel 2 pueden tener un texto.'], 422);
+        }
 
         $block->update($validated);
 

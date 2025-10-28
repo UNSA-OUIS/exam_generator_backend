@@ -28,10 +28,11 @@ abstract class RequirementService
         $block  = \App\Models\Block::findOrFail($data['block_id']);
 
         $this->validator->validateParentRelation($parent, $data, $this->ownerKey);
-        if (isset($data['difficulty'])) {
-            $this->validator->validateDifficultyConsistency($parent, $data, $this->modelClass);
+        if (array_key_exists('difficulty', $data)) {
+            $this->validator->validateDifficultyConsistency($parent, $data, $block, $this->modelClass);
+        } else {
+            $this->validator->validateBlockHierarchy($parent, $block);
         }
-        $this->validator->validateBlockHierarchy($parent, $block);
         $this->validator->validateQuestionTotals($parent, $data, $this->modelClass);
 
         try {

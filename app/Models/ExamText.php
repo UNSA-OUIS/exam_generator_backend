@@ -11,7 +11,8 @@ class ExamText extends Model
         'exam_id',
         'area',
         'block_id',
-        'total_texts',
+        'n_texts',
+        'questions_per_text',
     ];
 
     protected $casts = [

@@ -36,7 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
     Route::get('/confinements/{confinement}/requirements', [ConfinementRequirementController::class, 'byConfinement']);
     Route::get('/confinements/{confinement}/texts', [ConfinementTextController::class, 'byConfinement']);
-    Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportBlocks']);
+    Route::get('confinements/{confinement}/export', [ConfinementController::class, 'exportRequirements']);
     Route::get('confinements/{confinement}/export/texts', [ConfinementController::class, 'exportTexts']);
 
     Route::get('/matrices/{matrix}/requirements', [MatrixRequirementController::class, 'byMatrix']);
@@ -57,6 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'exam_texts' => ExamTextController::class,
         'confinement_requirements' => ConfinementRequirementController::class,
         'confinement_texts' => ConfinementTextController::class,
+        'exam_requirements' => ExamRequirementController::class,
         'collaborators' => CollaboratorController::class,
     ]);
 

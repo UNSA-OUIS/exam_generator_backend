@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Confinement;
 use Illuminate\Http\Request;
 use App\Exports\BlocksExport;
+use App\Exports\ConfinementRequirementsExport;
 use App\Exports\TextsExport;
 use App\Models\ConfinementRequirement;
 use Illuminate\Support\Facades\DB;
@@ -89,13 +90,13 @@ class ConfinementController extends Controller
         return response()->json(null, 204);
     }
 
-    public function exportBlocks($confinementId)
+    public function exportRequirements($confinementId)
     {
-        return Excel::download(new BlocksExport($confinementId), 'blocks.xlsx');
+        return Excel::download(new ConfinementRequirementsExport($confinementId), 'confinement_requirements.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 
     public function exportTexts($confinementId)
     {
-        return Excel::download(new TextsExport($confinementId), 'texts.xlsx');
+        return Excel::download(new TextsExport($confinementId), 'confinement_texts.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 }
