@@ -14,13 +14,15 @@ return new class extends Migration
     {
         Schema::create('exam_layouts', function (Blueprint $table) {
             $table->id();
-            $table->enum('area', ['BIOMEDICAS', 'SOCIALES', 'INGENIERIAS', 'UNICA']);
             $table->foreignUuid('exam_id')->constrained('exams');
-            $table->unsignedTinyInteger('variation');
+            $table->text('area');
+            $table->enum('variation', ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
             $table->unsignedTinyInteger('position');
             $table->foreignUuid('question_id')->constrained('questions');
-            //$table->array('options');
+            $table->json('options');
             $table->timestamps();
+
+            $table->unique(['exam_id', 'area', 'variation', 'question_id']);
         });
 
         DB::statement("ALTER TABLE exam_layouts ALTER COLUMN area TYPE area_enum USING area::area_enum;");

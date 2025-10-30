@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ExamStatusEnum;
 use App\Models\Exam;
+use App\Models\ExamLayout;
 use App\Models\ExamRequirement;
 use App\Models\Matrix;
 use App\Models\MatrixRequirement;
@@ -129,5 +130,46 @@ class ExamController extends Controller
             'success' => true,
             'message' => 'Todos los requerimientos del examen están completos y validados.',
         ]);
+    }
+
+    public function getAnswers(Exam $exam)
+    {
+        $layouts = ExamLayout::join('questions', 'questions.id', '=', 'exam_layouts.question_id')
+            ->where('exam_layouts.exam_id', $exam->id)
+            ->orderBy('area')
+            ->orderBy('variation')
+            ->orderBy('position')
+            ->select('area', 'variation', 'questions.answer')
+            ->get();
+
+        // Converts a positive integer (1 → A, 27 → AA, etc.)
+        $toLetter = function (int $num): string {
+            $letters = '';
+            while ($num > 0) {
+                $num--; // adjust because A starts at 1
+                $letters = chr(65 + ($num % 26)) . $letters;
+                $num = intdiv($num, 26);
+            }
+            return $letters;
+        };
+
+        // Group and structure answers
+        $grouped = $layouts
+            ->groupBy(['area', 'variation'])
+            ->flatMap(function ($variations, $area) use ($toLetter) {
+                return collect($variations)->map(function ($rows, $variation) use ($toLetter, $area) {
+                    return [
+                        'area' => $area,
+                        'variation' => $variation,
+                        'answers' => $rows->pluck('answer')
+                            ->map(fn($n) => $toLetter((int) $n))
+                            ->values()
+                            ->toArray(),
+                    ];
+                });
+            })
+            ->values();
+
+        return $grouped;
     }
 }

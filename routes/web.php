@@ -17,6 +17,7 @@ use App\Http\Controllers\ModalityController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionImportController;
+use App\Http\Controllers\SortController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RequireMasterKey;
 use Illuminate\Support\Facades\Route;
@@ -62,7 +63,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/import-questions', [QuestionImportController::class, 'import']);
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
-    Route::post('/masters/generate', [MasterController::class, 'generate']);
+    Route::post('/exams/masters', [MasterController::class, 'generate']);
     Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generateMasterPdf']);
     Route::get('/exams/{exam}/validate', [ExamController::class, 'validate']);
+    Route::post('/exams/variations', [SortController::class, 'sortVariations']);
+    Route::get('/exams/{exam}/variation/{area}/{variation}', [PDFController::class, 'downloadVariation']);
+    Route::get('/exams/{exam}/answers', [ExamController::class, 'getAnswers']);
 });

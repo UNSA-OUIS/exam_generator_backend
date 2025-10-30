@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AreaEnum;
 use App\Enums\ExamStatusEnum;
 use App\Models\Block;
 use App\Models\Exam;
+use App\Models\ExamLayout;
 use App\Models\MatrixDetail;
 use App\Models\Master;
 use App\Models\Question;
@@ -41,6 +43,31 @@ class PDFController extends Controller
     \\clubpenalty=10000 \\widowpenalty=10000
 
     \\begin{document}";
+    }
+
+    public function getExamHeader(Exam $exam, $title, $variation)
+    {
+        return "\\documentclass[11pt,twocolumn,twoside]{article}
+    \\usepackage[papersize={215mm,320mm},tmargin=18mm,bmargin=32mm,lmargin=15mm,rmargin=15mm]{geometry}
+    \\usepackage{epsfig}
+    \\usepackage{amsmath}
+    \\usepackage{latexsym}
+    \\usepackage{amssymb}
+    \\usepackage[spanish]{babel}
+    \\usepackage{fancyhdr}
+    \\usepackage{cmbright}
+    \\usepackage{pb-diagram}
+    \\usepackage{enumitem}
+    \\setlength{\\columnsep}{.7cm} \\pagestyle{fancy}
+    \\fancyhead[LE,RO]{\\textsf{Tema: \\Large{\\textsf{{\\textbf{" . $variation . "}}}}}}
+    \\fancyhead[LO,RE]{\\scriptsize{\\textbf{" . $exam->description . "}}} \\chead{\'{A}rea: \\huge{\\textrm{" . $title . "}}}
+    \\fancyfoot[LE,RO]{\\Large{\\textbf{\\textsf{\\thepage}}}}
+    \\fancyfoot[LO,RE]{\\vspace {-4mm}
+    \\includegraphics[scale=0.6]{logounsa.eps}}
+    \\cfoot{\\scriptsize{\\textbf{" . now('America/Lima')->translatedFormat('l j \d\e F Y') . "}}} \\clubpenalty=10000 \\widowpenalty=10000
+
+    \\begin{document}
+    \\begin{enumerate}[label=\\textbf{\arabic*}.,start=1]\n";
     }
 
     public function requiredImages($blockCode)
@@ -217,8 +244,6 @@ class PDFController extends Controller
         return response()->file($pdfPath);
     }
 
-
-
     protected function convertEpsToPdf(string $epsPath, string $destPath): ?string
     {
         if (!file_exists($epsPath)) {
@@ -237,14 +262,124 @@ class PDFController extends Controller
         $command = "{$epstopdfPath} {$escapedEpsPath} --outfile={$escapedPdfPath} 2>&1";
         $output = shell_exec($command);
 
-        Log::info("Salida del comando epstopdf", ['output' => $output]);
-
         if (!file_exists($pdfPath)) {
             Log::error("Fallo en conversión EPS a PDF. Comando: {$command}\nSalida: {$output}");
             return null;
         }
 
-        Log::info("Conversión EPS a PDF exitosa: {$pdfPath}");
         return $pdfPath;
+    }
+
+    public function getPreguntaLatex(Question $question, $orden_alternativas)
+    {
+        $tex_pregunta = "% $question->block->code \n";
+        $tex_pregunta .= "\\item " . $question->statement . "\n";
+        $tex_pregunta .= "\\begin{description}\n";
+
+        $options = $question->options->sortBy('number')->values();
+
+        if (count($orden_alternativas) != count($options))
+            throw new Exception("No se puede obtener el latex de la pregunta $question->id el # de alternativas es incorrecto");
+
+        $item = "A";
+        foreach ($orden_alternativas as $orden) {
+            $option = $options[$orden - 1];
+            $tex_pregunta .= "\\item [" . $item++ . ".] " . $option->description . "\n";
+        }
+
+        $tex_pregunta .= "\\end{description}\n";
+        $tex_pregunta .= "\\pagebreak[2]\n";
+        return $tex_pregunta;
+    }
+
+    public function convertImage($imagen_path)
+    {
+        $inputFile = storage_path('app/') . $imagen_path;
+        $outputFile = storage_path('app/') . preg_replace('/\.eps$/', '-eps-converted-to.pdf', $imagen_path);
+        $command = "epstopdf --debug  $inputFile --outfile=$outputFile 2>&1";
+        $output = shell_exec($command);
+        if (!file_exists($outputFile)) {
+            Log::error("Conversion failed. Output: " . $output);
+            return false;
+        }
+        return true;
+    }
+
+    public function compileLatex($latex_file_path)
+    {
+        $variable = shell_exec("/usr/bin/pdflatex -interaction=nonstopmode -output-directory /var/www/html/exam_generator/backend/storage/app/compilation $latex_file_path 2>&1");
+
+        // Replace .tex with .pdf to get the expected output path
+        $pdf_file_path = preg_replace('/\.tex$/', '.pdf', $latex_file_path);
+
+        if (!file_exists($pdf_file_path)) {
+            Log::error("Ha ocurrido un error generando el pdf master: " . $variable);
+            return false;
+        }
+
+        return true;
+    }
+
+    public function downloadVariation(Exam $exam, AreaEnum $area, $variation)
+    {
+        $exam_layout = ExamLayout::with('question.options')
+            ->where('exam_id', $exam->id)
+            ->where('area', $area)
+            ->where('variation', $variation)
+            ->orderBy('position', 'asc')
+            ->get();
+
+        $texts_compiled = [];
+        $tex_content = $this->getExamHeader($exam, $area->value, $variation);
+        foreach ($exam_layout as $l) {
+            $question = $l->question;
+
+            if ($question->text_id && !in_array($question->text_id, $texts_compiled)) {
+                $text = $question->text;
+                $tex_content .= "\n" . $text->content;
+                $textos_compilados[] = $question->text_id;
+            }
+
+            $tex_content .= $this->getPreguntaLatex($question, $l->options);
+
+            foreach ($question->images as $image) {
+                $sourcePath = storage_path("app/{$image->path}"); // 👈 real path
+                $destPath = storage_path("app/compilation/{$image->name}");
+
+                if (!file_exists($destPath) && file_exists($sourcePath)) {
+                    copy($sourcePath, $destPath);
+                    if (pathinfo($destPath, PATHINFO_EXTENSION) == 'eps') {
+                        $this->convertEpsToPdf($sourcePath, $destPath);
+                    }
+                }
+            }
+        }
+
+        $tex_content = $tex_content . "\n\\end{enumerate}\n\\end{document}";
+
+        // Copy logo
+        $logoPath = public_path('images/logounsa.eps');
+        $logoDest = storage_path("app/compilation/logounsa.eps");
+        if (!file_exists($logoDest) && file_exists($logoPath)) {
+            copy($logoPath, $logoDest);
+            if (pathinfo($logoDest, PATHINFO_EXTENSION) == 'eps') {
+                $this->convertEpsToPdf($logoPath, $logoDest);
+            }
+        }
+
+        // Compilar
+        $tema_file = 'compilation/tema';
+        if (!Storage::put($tema_file . ".tex", $tex_content)) {
+            Log::error("No se puedo escribir el tema " . "$area->value-$variation" . " en el almacenamiento");
+            abort(500, "No se puedo escribir el tema en el almacenamiento");
+        }
+
+        $filename = storage_path('app/') . $tema_file . ".tex";
+        if (!$this->compileLatex($filename))
+            abort(500, "Ha ocurrido un error generando el pdf master");
+
+        return response()->file(storage_path('app/') . $tema_file . ".pdf", [
+            'Content-Disposition' => 'inline; filename="tema_' . $variation . "_" . time() . '.pdf"'
+        ]);
     }
 }

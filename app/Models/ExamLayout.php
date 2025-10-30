@@ -9,13 +9,16 @@ class ExamLayout extends Model
 {
     protected $fillable = [
         'exam_id',
+        'area',
         'variation',
         'position',
         'question_id',
+        'options'
     ];
 
     protected $casts = [
         'area' => AreaEnum::class,
+        'options' => 'json'
     ];
 
     public function question()

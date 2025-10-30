@@ -29,11 +29,9 @@ class MasterController extends Controller
     {
         $request->validate([
             'exam_id' => 'required|uuid',
-            'area' => 'required|in:SOCIALES,INGENIERIAS,BIOMEDICAS,UNICA'
         ]);
 
         $examId = $request->input('exam_id');
-        $area = $request->input('area');
 
         $exam = Exam::find($examId);
         if ($exam->status !== ExamStatusEnum::VALIDATED) {
@@ -43,9 +41,10 @@ class MasterController extends Controller
             ], 400);
         }
 
-        DB::beginTransaction();
 
         try {
+            DB::beginTransaction();
+
             $areas = ExamRequirement::where('exam_id', $examId)
                 ->whereNull('parent_id')
                 ->distinct('area')
