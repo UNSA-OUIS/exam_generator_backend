@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Requirements\ConfinementRequirementService;
 use Illuminate\Http\Request;
 use App\Models\ConfinementRequirement;
+use Illuminate\Support\Facades\Log;
 
 class ConfinementRequirementController extends Controller
 {
@@ -34,6 +35,7 @@ class ConfinementRequirementController extends Controller
             $created = $this->service->store($validated);
             return response()->json($created, 201);
         } catch (\Throwable $e) {
+            Log::error('Error creating ConfinementRequirement: ' . $e->getMessage());
             $status = $e->getCode() ?: 422;
             return response()->json(['error' => $e->getMessage()], $status);
         }

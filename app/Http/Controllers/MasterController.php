@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AreaEnum;
+use App\Enums\ExamStatusEnum;
+use App\Enums\QuestionStatusEnum;
 use App\Models\Exam;
-use App\Models\MatrixDetail;
+use App\Models\ExamRequirement;
 use App\Models\Master;
-use App\Models\MatrixRequirement;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,86 +29,105 @@ class MasterController extends Controller
     {
         $request->validate([
             'exam_id' => 'required|uuid',
-            'area' => 'required|in:SOCIALES,INGENIERIAS,BIOMEDICAS'
+            'area' => 'required|in:SOCIALES,INGENIERIAS,BIOMEDICAS,UNICA'
         ]);
 
         $examId = $request->input('exam_id');
         $area = $request->input('area');
 
+        $exam = Exam::find($examId);
+        if ($exam->status !== ExamStatusEnum::VALIDATED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El examen debe estar en estado VALIDADO para generar el master.'
+            ], 400);
+        }
+
         DB::beginTransaction();
 
         try {
-            // === Restore previous questions for this exam & area ===
-            Question::where('exam_id', $examId)
-                ->whereIn('id', function ($query) use ($examId, $area) {
-                    $query->select('question_id')
-                        ->from('masters')
-                        ->where('exam_id', $examId)
-                        ->where('area', $area);
-                })
-                ->where('status', 'UNAVAILABLE')
-                ->update([
-                    'status' => 'AVAILABLE',
-                    'exam_id' => null
-                ]);
+            $areas = ExamRequirement::where('exam_id', $examId)
+                ->whereNull('parent_id')
+                ->distinct('area')
+                ->pluck('area');
 
-            // remove old masters
-            Master::where('exam_id', $examId)
-                ->where('area', $area)
-                ->delete();
+            $usedQuestionIds = [];
+            foreach ($areas as $area) {
+                // === Restore previous questions for this exam & area ===
+                Question::where('exam_id', $examId)
+                    ->where('status', QuestionStatusEnum::UNAVAILABLE)
+                    ->update([
+                        'status' => QuestionStatusEnum::AVAILABLE,
+                        'exam_id' => null
+                    ]);
 
-            // === Load requirements for the given area ===
-            $details = MatrixRequirement::where('area', $area)->get();
+                // remove old masters
+                Master::where('exam_id', $examId)
+                    ->where('area', $area)
+                    ->delete();
 
-            if ($details->isEmpty()) {
-                throw new Exception("Falta la configuracion de matriz para {$area}");
-            }
+                $requirements = DB::select(
+                    'SELECT * FROM get_requirements(:model, :uuid, :area)',
+                    [
+                        'model' => 'exam',
+                        'uuid' => $examId,
+                        'area' => $area->value,
+                    ]
+                );
 
-            $mastersToInsert = [];
-            $selectedQuestionIds = [];
-
-            foreach ($details as $detail) {
-                // === Fetch available questions for this block/difficulty/area ===
-                $available = Question::query()
-                    ->where('status', 'AVAILABLE')
-                    ->where('block_id', $detail->block_id)
-                    //->where('difficulty', $detail->difficulty)
-                    //->whereHas('areas', fn($q) => $q->where('area', $area))
-                    ->inRandomOrder()
-                    ->limit($detail->questions_required)
-                    ->get();
-
-                if ($available->count() < $detail->questions_required) {
-                    throw new Exception(
-                        "No hay suficientes preguntas para el bloque {$detail->block_id}, " .
-                            "dificultad {$detail->difficulty->value}, area {$area}. " .
-                            "Requeridos {$detail->questions_required}, encontrados {$available->count()}"
-                    );
+                if (count($requirements) === 0) {
+                    throw new Exception("Faltan los requerimientos del examen para area {$area->value}");
                 }
 
-                // === Build master records ===
-                foreach ($available as $q) {
-                    $mastersToInsert[] = [
-                        'exam_id' => $examId,
-                        'area' => $area,
-                        'question_id' => $q->id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                $mastersToInsert = [];
+                $questionsIds = [];
 
-                    $selectedQuestionIds[] = $q->id;
+                foreach ($requirements as $req) {
+                    // === Fetch available questions for this block/difficulty/area ===
+                    $available = Question::query()
+                        ->where('status', QuestionStatusEnum::AVAILABLE)
+                        ->where('block_id', $req->block_id)
+                        ->when($req->difficulty !== null, fn($q) => $q->where('difficulty', $req->difficulty))
+                        ->whereHas('areas', fn($q) => $q->whereIn('area', [$area, AreaEnum::UNICA])) // Selecciona preguntas del area o generales
+                        ->inRandomOrder()
+                        ->limit($req->n_questions)
+                        ->get();
+
+                    if ($available->count() < $req->n_questions) {
+                        throw new Exception(
+                            "No hay suficientes preguntas para el bloque {$req->block_id}, " .
+                                "dificultad {$req->difficulty?->value}, area {$area->value}. " .
+                                "Requeridos {$req->n_questions}, encontrados {$available->count()}"
+                        );
+                    }
+
+                    // === Build master records ===
+                    foreach ($available as $q) {
+                        $mastersToInsert[] = [
+                            'exam_id' => $examId,
+                            'area' => $area,
+                            'question_id' => $q->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+
+                        $questionsIds[] = $q->id;
+                    }
                 }
-            }
 
-            // === Insert into masters ===
-            Master::insert($mastersToInsert);
+                Master::insert($mastersToInsert);
+                $usedQuestionIds = array_unique(array_merge($usedQuestionIds, $questionsIds));
+            }
 
             // === Mark selected questions as UNAVAILABLE and assign exam_id ===
-            Question::whereIn('id', $selectedQuestionIds)
+            Question::whereIn('id', $usedQuestionIds)
                 ->update([
-                    'status' => 'UNAVAILABLE',
+                    'status' => QuestionStatusEnum::UNAVAILABLE,
                     'exam_id' => $examId
                 ]);
+
+            $exam->status = ExamStatusEnum::MASTERED;
+            $exam->save();
 
             DB::commit();
 
@@ -119,7 +140,7 @@ class MasterController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Generation failed: ' . $e->getMessage()
+                'message' => 'Error generando master: ' . $e->getMessage()
             ], 400);
         }
     }

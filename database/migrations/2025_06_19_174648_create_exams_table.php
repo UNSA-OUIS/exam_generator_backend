@@ -14,17 +14,12 @@ return new class extends Migration
     {
         Schema::create('exams', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->unsignedTinyInteger('matrix_id')->index();
+            $table->foreignUuid('matrix_id')->index();
             $table->unsignedBigInteger('user_id')->index();
             $table->text('description');
             $table->tinyInteger('total_variations')->default(1);
             $table->text('status');
             $table->timestamps();
-
-            $table->foreign('matrix_id')
-                ->references('id')
-                ->on('matrices')
-                ->onDelete('cascade');
 
             $table->foreign('user_id')
                 ->references('id')

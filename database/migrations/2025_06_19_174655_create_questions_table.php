@@ -15,9 +15,9 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->text('statement');
-            $table->enum('difficulty', ['EASY', 'MEDIUM', 'HARD']);
-            $table->enum('status', ['AVAILABLE', 'UNAVAILABLE', 'USED', 'RETIRED'])->default('AVAILABLE');
-            $table->unsignedInteger('block_id');
+            $table->text('difficulty');
+            $table->text('status');
+            $table->unsignedBigInteger('block_id');
             $table->foreignUuid('text_id')->nullable()->constrained('texts');
             $table->unsignedInteger('formulator_id')->constrained('collaborators');
             $table->unsignedInteger('validator_id')->constrained('collaborators');
@@ -46,6 +46,10 @@ return new class extends Migration
                 ->references('id')
                 ->on('users');
         });
+
+        DB::statement("ALTER TABLE questions ALTER COLUMN difficulty TYPE difficulty_enum USING difficulty::difficulty_enum;");
+        DB::statement("ALTER TABLE questions ALTER COLUMN status TYPE question_status_enum USING status::question_status_enum;");
+        DB::statement("ALTER TABLE questions ALTER COLUMN status SET DEFAULT 'AVAILABLE';");
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\ExamRequirement;
 use App\Models\Matrix;
 use App\Models\MatrixRequirement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExamController extends Controller
 {
@@ -99,5 +100,34 @@ class ExamController extends Controller
     {
         $exam->delete();
         return response()->json(null, 204);
+    }
+
+    public function validate(Exam $exam)
+    {
+        $roots = ExamRequirement::where('exam_id', $exam->id)
+            ->whereNull('parent_id')
+            ->get();
+
+        foreach ($roots as $root) {
+            $isComplete = DB::scalar('SELECT is_exam_tree_complete(:exam_id, :area)', [
+                'exam_id' => $exam->id,
+                'area' => $root->area->value,
+            ]);
+
+            if (!$isComplete) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Los requerimientos del examen para el área {$root->area->value} no están completos.",
+                ], 400);
+            }
+        }
+
+        $exam->status = ExamStatusEnum::VALIDATED;
+        $exam->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Todos los requerimientos del examen están completos y validados.',
+        ]);
     }
 }

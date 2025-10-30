@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ExamStatusEnum;
 use App\Models\Block;
 use App\Models\Exam;
 use App\Models\MatrixDetail;
@@ -69,6 +70,13 @@ class PDFController extends Controller
 
     public function generateMasterPdf($examId, $area)
     {
+        $exam = Exam::findOrFail($examId);
+        if ($exam->status !== ExamStatusEnum::MASTERED) {
+            return response()->json([
+                'error' => 'Se debe generar el master del examen en el area solicitada para generar el PDF.'
+            ], 422);
+        }
+
         // === Get selected questions for exam/area ===
         $masters = Master::where('exam_id', $examId)
             ->where('area', $area)

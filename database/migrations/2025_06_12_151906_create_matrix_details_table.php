@@ -13,16 +13,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('matrix_requirements', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedTinyInteger('matrix_id')->index();
+            $table->id();
+            $table->foreignUuid('matrix_id')->index();
             $table->text('area');
-            $table->unsignedInteger('block_id')->nullable()->index();
+            $table->unsignedBigInteger('block_id')->nullable()->index();
             $table->unsignedTinyInteger('n_questions')->default(0);
-            $table->unsignedInteger('parent_id')->nullable()->index();
+            $table->unsignedBigInteger('parent_id')->nullable()->index();
             $table->timestamps();
 
             $table->foreign('block_id')->references('id')->on('blocks')->onDelete('cascade');
-            $table->foreign('matrix_id')->references('id')->on('matrices')->onDelete('cascade');
             $table->foreign('parent_id')->references('id')->on('matrix_requirements')->onDelete('cascade');
             $table->unique(['matrix_id', 'area', 'block_id'], 'unique_matrix_area_block');
         });

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\DifficultyEnum;
+use App\Enums\QuestionStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\DB;
@@ -36,14 +38,10 @@ class Question extends Model
         'answer',
     ];
 
-    /**
-     * Generate a new UUID for the model.
-     */
-    public function newUniqueId(): string
-    {
-        $result = DB::select('SELECT gen_random_uuid() AS uuid');
-        return $result[0]->uuid;
-    }
+    protected $casts = [
+        'difficulty' => DifficultyEnum::class,
+        'status' => QuestionStatusEnum::class,
+    ];
 
     public function options()
     {

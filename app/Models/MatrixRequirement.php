@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\AreaEnum;
-use App\Enums\DifficultyEnum;
 
 class MatrixRequirement extends Model
 {

@@ -16,14 +16,11 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('exam_id')->constrained('exams')->onDelete('cascade');
             $table->text('area');
-            $table->unsignedInteger('block_id')->nullable();
+            $table->foreignId('block_id')->nullable()->constrained('blocks')->onDelete('cascade');
             $table->text('difficulty')->nullable();
             $table->unsignedTinyInteger('n_questions')->default(0);
-            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('exam_requirements')->onDelete('cascade');
             $table->timestamps();
-
-            $table->foreign('block_id')->references('id')->on('blocks')->onDelete('cascade');
-            $table->foreign('parent_id')->references('id')->on('exam_requirements')->onDelete('cascade');
 
             $table->unique(['exam_id', 'area', 'block_id', 'difficulty'], 'unique_exam_area_block_difficulty');
             $table->index('parent_id');

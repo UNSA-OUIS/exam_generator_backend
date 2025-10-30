@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ExamRequirement;
 use App\Services\Requirements\ExamRequirementService;
+use Illuminate\Support\Facades\Log;
 
 class ExamRequirementController extends Controller
 {
@@ -31,6 +32,7 @@ class ExamRequirementController extends Controller
             $created = $this->service->store($validated);
             return response()->json($created, 201);
         } catch (\Throwable $e) {
+            Log::error('Error creating ExamRequirement: ' . $e->getMessage());
             $status = $e->getCode() ?: 422;
             return response()->json(['error' => $e->getMessage()], $status);
         }

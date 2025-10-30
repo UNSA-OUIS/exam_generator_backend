@@ -30,7 +30,6 @@ Route::get('/', function () {
 //Route::middleware([RequireMasterKey::class])->group(function () {
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
 //});
-Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generateMasterPdf']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
@@ -64,4 +63,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/import-questions', [QuestionImportController::class, 'import']);
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
     Route::post('/masters/generate', [MasterController::class, 'generate']);
+    Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generateMasterPdf']);
+    Route::get('/exams/{exam}/validate', [ExamController::class, 'validate']);
 });

@@ -23,7 +23,7 @@ return new class extends Migration
         DO $$
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'difficulty_enum') THEN
-                CREATE TYPE difficulty_enum AS ENUM ('FACIL', 'MEDIO', 'DIFICIL');
+                CREATE TYPE difficulty_enum AS ENUM ('EASY', 'NORMAL', 'HARD');
             END IF;
         END$$;
     ");
@@ -33,6 +33,15 @@ return new class extends Migration
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'exam_status_enum') THEN
                 CREATE TYPE exam_status_enum AS ENUM ('CONFIGURING', 'VALIDATED', 'MASTERED', 'VARIATED', 'APPROVED');
+            END IF;
+        END$$;
+    ");
+
+        DB::statement("
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'question_status_enum') THEN
+                CREATE TYPE question_status_enum AS ENUM ('AVAILABLE', 'UNAVAILABLE', 'USED', 'RETIRED');
             END IF;
         END$$;
     ");

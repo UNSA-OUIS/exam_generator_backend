@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('code', 20)->unique();
             $table->tinyText('name');
             $table->boolean('has_text')->default(false);
-            $table->unsignedInteger('parent_block_id')->nullable()->index();
+            $table->unsignedBigInteger('parent_block_id')->nullable()->index();
             $table->timestamps();
 
             $table->foreign('level_id')

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignUuid('confinement_id')->constrained('confinements')->onDelete('cascade');
             $table->foreignId('block_id')->nullable()->constrained('blocks')->onDelete('cascade');
             $table->text('difficulty')->nullable();
-            $table->integer('n_questions')->default(0);
+            $table->unsignedTinyInteger('n_questions')->default(0);
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
 

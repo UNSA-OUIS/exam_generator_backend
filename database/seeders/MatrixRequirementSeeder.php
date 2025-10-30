@@ -26,9 +26,15 @@ class MatrixRequirementSeeder extends Seeder
 
         $QUESTIONS_PER_COMPONENT = 3;
         foreach ($areas as $area) {
-            if ($area === AreaEnum::UNICA) {
+            if ($area !== AreaEnum::UNICA) {
                 continue;
             }
+            $root_req = MatrixRequirement::create([
+                'matrix_id' => $matrix->id,
+                'area' => $area,
+                'block_id' => null,
+                'n_questions' => $ejes->count() * $QUESTIONS_PER_COMPONENT * 2,
+            ]);
             foreach ($ejes as $eje) {
                 $children = Block::where('parent_block_id', $eje->id)->get();
                 $total = $children->count() * $QUESTIONS_PER_COMPONENT;
@@ -37,6 +43,7 @@ class MatrixRequirementSeeder extends Seeder
                     'area' => $area,
                     'block_id' => $eje->id,
                     'n_questions' => $total,
+                    'parent_id' => $root_req->id,
                 ]);
 
                 foreach ($children as $component) {
@@ -50,7 +57,5 @@ class MatrixRequirementSeeder extends Seeder
                 }
             }
         }
-
-        MatrixRequirement::whereNotIn('block_id', [2, 5, 6])->delete();
     }
 }

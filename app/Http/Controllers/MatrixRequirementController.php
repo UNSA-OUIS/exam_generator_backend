@@ -21,7 +21,7 @@ class MatrixRequirementController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'matrix_id' => 'required|integer|exists:matrices,id',
+            'matrix_id' => 'required|uuid|exists:matrices,id',
             'parent_id' => 'required|integer|exists:matrix_requirements,id',
             'block_id' => 'required|integer|exists:blocks,id',
             'area' => 'required|string', // Assuming enum handled by model
@@ -73,6 +73,7 @@ class MatrixRequirementController extends Controller
             })
             ->orderBy('parent_id')
             ->get();
+
         return response()->json($requirements);
     }
 }
