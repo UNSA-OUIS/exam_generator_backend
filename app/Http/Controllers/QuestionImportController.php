@@ -19,6 +19,7 @@ class QuestionImportController extends Controller
             'questions' => 'required|file|mimes:zip'
         ]);
 
+
         $confinementId = $request->input('confinementId');
         $zipFile = $request->file('questions');
 

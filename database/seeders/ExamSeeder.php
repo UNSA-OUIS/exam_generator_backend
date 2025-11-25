@@ -22,7 +22,7 @@ class ExamSeeder extends Seeder
             'matrix_id' => Matrix::first()->id,
             'user_id' => 1,
             'description' => 'Examen de admisión 2025-I',
-            'total_variations' => 3,
+            'total_variations' => 4,
             'status' => ExamStatusEnum::CONFIGURING
         ]);
 

@@ -34,12 +34,12 @@ class MasterController extends Controller
         $examId = $request->input('exam_id');
 
         $exam = Exam::find($examId);
-        if ($exam->status !== ExamStatusEnum::VALIDATED) {
+        /*if ($exam->status !== ExamStatusEnum::VALIDATED) {
             return response()->json([
                 'success' => false,
                 'message' => 'El examen debe estar en estado VALIDADO para generar el master.'
             ], 400);
-        }
+        }*/
 
 
         try {
@@ -52,7 +52,6 @@ class MasterController extends Controller
 
             $usedQuestionIds = [];
             foreach ($areas as $area) {
-                // === Restore previous questions for this exam & area ===
                 Question::where('exam_id', $examId)
                     ->where('status', QuestionStatusEnum::UNAVAILABLE)
                     ->update([
@@ -60,7 +59,6 @@ class MasterController extends Controller
                         'exam_id' => null
                     ]);
 
-                // remove old masters
                 Master::where('exam_id', $examId)
                     ->where('area', $area)
                     ->delete();
@@ -87,7 +85,10 @@ class MasterController extends Controller
                         ->where('status', QuestionStatusEnum::AVAILABLE)
                         ->where('block_id', $req->block_id)
                         ->when($req->difficulty !== null, fn($q) => $q->where('difficulty', $req->difficulty))
-                        ->whereHas('areas', fn($q) => $q->whereIn('area', [$area, AreaEnum::UNICA])) // Selecciona preguntas del area o generales
+                        ->when(
+                            $area !== AreaEnum::UNICA,
+                            fn($q) => $q->whereHas('areas', fn($q) => $q->whereIn('area', [$area, AreaEnum::UNICA])) // Selecciona preguntas del area o generales
+                        )
                         ->inRandomOrder()
                         ->limit($req->n_questions)
                         ->get();
@@ -118,7 +119,6 @@ class MasterController extends Controller
                 $usedQuestionIds = array_unique(array_merge($usedQuestionIds, $questionsIds));
             }
 
-            // === Mark selected questions as UNAVAILABLE and assign exam_id ===
             Question::whereIn('id', $usedQuestionIds)
                 ->update([
                     'status' => QuestionStatusEnum::UNAVAILABLE,

@@ -5,54 +5,88 @@ namespace Database\Seeders;
 use App\Enums\AreaEnum;
 use App\Models\Block;
 use App\Models\Matrix;
-use App\Models\MatrixDetail;
 use App\Models\MatrixRequirement;
-use App\Models\Process;
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class MatrixRequirementSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $areas = AreaEnum::cases();
-        $ejes = Block::where('level_id', 1)->get();
         $matrix = Matrix::first();
 
-        $QUESTIONS_PER_COMPONENT = 3;
-        foreach ($areas as $area) {
-            if ($area !== AreaEnum::UNICA) {
-                continue;
-            }
-            $root_req = MatrixRequirement::create([
+        // 🔹 Datos de requerimientos (según tu tabla)
+        $data = [
+            ['eje' => 'APTITUD ACADÉMICA', 'asignatura' => 'RAZONAMIENTO LÓGICO', 'ingenierias' => 4, 'biomedicas' => 4, 'sociales' => 4],
+            ['eje' => 'APTITUD ACADÉMICA', 'asignatura' => 'RAZONAMIENTO MATEMÁTICO', 'ingenierias' => 5, 'biomedicas' => 5, 'sociales' => 5],
+            ['eje' => 'APTITUD ACADÉMICA', 'asignatura' => 'RAZONAMIENTO VERBAL', 'ingenierias' => 4, 'biomedicas' => 4, 'sociales' => 4],
+            ['eje' => 'APTITUD ACADÉMICA', 'asignatura' => 'COMPRENSIÓN LECTORA', 'ingenierias' => 5, 'biomedicas' => 5, 'sociales' => 5],
+            ['eje' => 'MATEMÁTICA', 'asignatura' => 'ALGEBRA', 'ingenierias' => 4, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'MATEMÁTICA', 'asignatura' => 'ARITMÉTICA', 'ingenierias' => 4, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'MATEMÁTICA', 'asignatura' => 'GEOMETRÍA', 'ingenierias' => 4, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'MATEMÁTICA', 'asignatura' => 'TRIGONOMETRÍA', 'ingenierias' => 3, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'CIENCIAS SOCIALES', 'asignatura' => 'HISTORIA', 'ingenierias' => 4, 'biomedicas' => 5, 'sociales' => 8],
+            ['eje' => 'CIENCIAS SOCIALES', 'asignatura' => 'GEOGRAFÍA', 'ingenierias' => 4, 'biomedicas' => 4, 'sociales' => 5],
+            ['eje' => 'CIENCIA Y TECNOLOGÍA', 'asignatura' => 'QUIMICA', 'ingenierias' => 6, 'biomedicas' => 6, 'sociales' => 3],
+            ['eje' => 'CIENCIA Y TECNOLOGÍA', 'asignatura' => 'BIOLOGIA', 'ingenierias' => 5, 'biomedicas' => 9, 'sociales' => 3],
+            ['eje' => 'CIENCIA Y TECNOLOGÍA', 'asignatura' => 'FISICA', 'ingenierias' => 7, 'biomedicas' => 5, 'sociales' => 3],
+            ['eje' => 'DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA', 'asignatura' => 'FILOSOFÍA', 'ingenierias' => 3, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA', 'asignatura' => 'PSICOLOGÍA', 'ingenierias' => 4, 'biomedicas' => 4, 'sociales' => 5],
+            ['eje' => 'DESARROLLO PERSONAL, CIUDADANÍA Y CÍVICA', 'asignatura' => 'CÍVICA', 'ingenierias' => 3, 'biomedicas' => 3, 'sociales' => 3],
+            ['eje' => 'COMUNICACIÓN', 'asignatura' => 'LENGUAJE', 'ingenierias' => 4, 'biomedicas' => 4, 'sociales' => 8],
+            ['eje' => 'COMUNICACIÓN', 'asignatura' => 'LITERATURA', 'ingenierias' => 3, 'biomedicas' => 3, 'sociales' => 5],
+            ['eje' => 'IDIOMA EXTRANJERO', 'asignatura' => 'INGLÉS-LECTURA', 'ingenierias' => 2, 'biomedicas' => 2, 'sociales' => 2],
+            ['eje' => 'IDIOMA EXTRANJERO', 'asignatura' => 'INGLÉS-GRAMÁTICA', 'ingenierias' => 2, 'biomedicas' => 2, 'sociales' => 2],
+        ];
+
+        // 🔹 Áreas disponibles (según tu enum)
+        $areas = [
+            'ingenierias' => AreaEnum::INGENIERIAS,
+            'biomedicas' => AreaEnum::BIOMEDICAS,
+            'sociales' => AreaEnum::SOCIALES,
+        ];
+
+        foreach ($areas as $key => $areaEnum) {
+            // 🔸 Crear requerimiento raíz por área
+            $root = MatrixRequirement::create([
                 'matrix_id' => $matrix->id,
-                'area' => $area,
+                'area' => $areaEnum,
                 'block_id' => null,
-                'n_questions' => $ejes->count() * $QUESTIONS_PER_COMPONENT * 2,
+                'n_questions' => collect($data)->sum($key),
+                'parent_id' => null,
             ]);
-            foreach ($ejes as $eje) {
-                $children = Block::where('parent_block_id', $eje->id)->get();
-                $total = $children->count() * $QUESTIONS_PER_COMPONENT;
-                $eje_req = MatrixRequirement::create([
+
+            // 🔸 Agrupar por eje
+            $grouped = collect($data)->groupBy('eje');
+
+            foreach ($grouped as $ejeName => $componentes) {
+                $ejeBlock = Block::where('name', strtoupper($ejeName))->first();
+                if (!$ejeBlock) continue;
+
+                // Total de preguntas por eje
+                $totalEje = $componentes->sum($key);
+
+                $ejeReq = MatrixRequirement::create([
                     'matrix_id' => $matrix->id,
-                    'area' => $area,
-                    'block_id' => $eje->id,
-                    'n_questions' => $total,
-                    'parent_id' => $root_req->id,
+                    'area' => $areaEnum,
+                    'block_id' => $ejeBlock->id,
+                    'n_questions' => $totalEje,
+                    'parent_id' => $root->id,
                 ]);
 
-                foreach ($children as $component) {
-                    $comp_req = MatrixRequirement::create([
+                // 🔸 Requerimientos por componente
+                foreach ($componentes as $comp) {
+                    $componentBlock = Block::where('name', strtoupper($comp['asignatura']))
+                        ->where('parent_block_id', $ejeBlock->id)
+                        ->first();
+
+                    if (!$componentBlock) continue;
+
+                    MatrixRequirement::create([
                         'matrix_id' => $matrix->id,
-                        'area' => $area,
-                        'block_id' => $component->id,
-                        'n_questions' => $QUESTIONS_PER_COMPONENT,
-                        'parent_id' => $eje_req->id,
+                        'area' => $areaEnum,
+                        'block_id' => $componentBlock->id,
+                        'n_questions' => $comp[$key],
+                        'parent_id' => $ejeReq->id,
                     ]);
                 }
             }

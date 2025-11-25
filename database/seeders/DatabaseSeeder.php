@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             MatrixSeeder::class,
             MatrixRequirementSeeder::class,
             ConfinementSeeder::class,
-            ExamSeeder::class
+            //ExamSeeder::class
         ]);
     }
 }
