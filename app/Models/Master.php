@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enums\AreaEnum;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Master de preguntas seleccionadas para un area del examen(sorteo), para luego ser sorteadas en el layout
+ */
 class Master extends Model
 {
     protected $fillable = [

@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enums\AreaEnum;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Areas en las que puede usarse la pregunta, para el sorteo
+ */
 class QuestionArea extends Model
 {
     public $incrementing = false;           // No auto-increment

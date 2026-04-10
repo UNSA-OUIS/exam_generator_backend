@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Enums\AreaEnum;
 use App\Enums\DifficultyEnum;
 
+/**
+ * Matriz de requerimientos especificos para sortear el master en el proceso actual
+ */
 class ExamRequirement extends Model
 {
     protected $fillable = [

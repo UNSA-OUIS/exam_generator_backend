@@ -19,14 +19,14 @@ class UserSeeder extends Seeder
     {
         $user = User::factory()->create([
             'name' => 'Admin 1',
-            'email' => 'admin1@unsa.edu.pe',
-            'password' => '12345678'
+            'email' => 'rsiza@unsa.edu.pe',
+            'password' => 'changeme123'
         ]);
 
         $user2 = User::factory()->create([
             'name' => 'Admin 2',
-            'email' => 'admin2@unsa.edu.pe',
-            'password' => '87654321'
+            'email' => 'rhualla@unsa.edu.pe',
+            'password' => 'changeme123'
         ]);
     }
 }

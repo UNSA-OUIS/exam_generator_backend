@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Internamientos
+ */
 class Confinement extends Model
 {
     use HasUuids;

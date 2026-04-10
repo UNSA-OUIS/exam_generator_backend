@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Services\QuestionImportService;
 
+/**
+ * Comando que se usa para importar las preguntas enviadas por el sistema de internamientos
+ */
 class ImportQuestions extends Command
 {
     protected $signature = 'questions:import

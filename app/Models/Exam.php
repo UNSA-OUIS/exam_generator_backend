@@ -6,6 +6,9 @@ use App\Enums\ExamStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * Declaracion de examenes y detalles
+ */
 class Exam extends Model
 {
     use HasUuids;

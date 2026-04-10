@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Requerimiento de textos para el bloque por internamiento
+ */
 class ConfinementText extends Model
 {
     protected $fillable = [

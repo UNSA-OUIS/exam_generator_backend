@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Banco de preguntas: contiene la definicion de la pregunta elaborada y aprobada en latex, resolucion y respuesta, con sus respectivas relaciones a colaboradores, bloque, texto, examen y confinamiento. Se utiliza para generar el master y el layout del examen. Se oculta la respuesta en las consultas normales.
+ */
 class Question extends Model
 {
     use HasUuids;

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Contiene la descripcion de las opciones de las preguntas
+ */
 class Option extends Model
 {
     public $incrementing = false;           // No auto-increment

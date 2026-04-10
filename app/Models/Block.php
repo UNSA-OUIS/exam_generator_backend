@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Bloque 
+ */
 class Block extends Model
 {
     protected $fillable = [

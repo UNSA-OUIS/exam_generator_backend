@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enums\AreaEnum;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * !!Contiene la estructura de preguntas del examen (permutaciones)
+ */
 class ExamLayout extends Model
 {
     protected $fillable = [
@@ -13,12 +16,12 @@ class ExamLayout extends Model
         'variation',
         'position',
         'question_id',
-        'options'
+        'options_shuffled'
     ];
 
     protected $casts = [
         'area' => AreaEnum::class,
-        'options' => 'json'
+        'options_shuffled' => 'json'
     ];
 
     public function question()

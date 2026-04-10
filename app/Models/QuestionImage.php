@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Imagenes que utiliza la pregunta
+ */
 class QuestionImage extends Model
 {
     public $incrementing = false;

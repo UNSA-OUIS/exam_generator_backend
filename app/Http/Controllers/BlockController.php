@@ -67,10 +67,8 @@ class BlockController extends Controller
     public function update(Request $request, Block $block)
     {
         $validated = $request->validate([
-            //'level_id' => 'sometimes|required|exists:levels,id',
             'name' => 'sometimes|required|string|max:255',
             'has_text' => 'sometimes|required|boolean',
-            //'parent_block_id' => 'nullable|exists:blocks,id',
         ]);
 
         if ($block->level->stage !== 2 && isset($validated['has_text']) && $validated['has_text']) {

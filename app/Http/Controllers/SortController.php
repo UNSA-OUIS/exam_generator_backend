@@ -83,7 +83,7 @@ class SortController extends Controller
                             'variation' => $variations[$v],
                             'position' => $index + 1,
                             'question_id' => $item->question_id,
-                            'options' => json_encode($shuffledAlternatives),
+                            'options_shuffled' => json_encode($shuffledAlternatives),
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];

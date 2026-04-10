@@ -15,7 +15,7 @@ class LevelSeeder extends Seeder
     {
         // Crear los 6 niveles jerárquicos
         $level1 = Level::create(['stage' => 1, 'name' => 'EJE TEMÁTICO']);
-        $level2 = Level::create(['stage' => 2, 'name' => 'COMPONENTES']);
+        $level2 = Level::create(['stage' => 2, 'name' => 'COMPONENTE']);
         $level3 = Level::create(['stage' => 3, 'name' => 'TEMA']);
         $level4 = Level::create(['stage' => 4, 'name' => 'SUBTEMA']);
         $level5 = Level::create(['stage' => 5, 'name' => 'SUBSUBTEMA']);

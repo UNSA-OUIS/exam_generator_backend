@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enums\AreaEnum;
 use Illuminate\Database\Eloquent\Model;
 
+/****
+ * Matriz de requerimientos de textos del examen
+ */
 class ExamText extends Model
 {
     protected $fillable = [

@@ -40,6 +40,9 @@ use Illuminate\Database\Eloquent\Model;
  *     )
  * )
  */
+/**
+ * Definicion de la matriz general anual por modalidad, para crear examenes
+ */
 class Matrix extends Model
 {
     use HasUuids;

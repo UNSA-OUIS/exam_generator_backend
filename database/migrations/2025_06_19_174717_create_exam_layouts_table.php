@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('variation', ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
             $table->unsignedTinyInteger('position');
             $table->foreignUuid('question_id')->constrained('questions');
-            $table->json('options');
+            $table->json('options_shuffled');
             $table->timestamps();
 
             $table->unique(['exam_id', 'area', 'variation', 'question_id']);

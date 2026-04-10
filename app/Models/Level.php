@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * El nivel de agrupacion de la pregunta
+ */
 class Level extends Model
 {
     protected $fillable = [

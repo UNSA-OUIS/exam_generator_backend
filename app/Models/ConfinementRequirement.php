@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enums\DifficultyEnum;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Matriz de requerimientos del internamiento
+ */
 class ConfinementRequirement extends Model
 {
     protected $fillable = [

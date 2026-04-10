@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\AreaEnum;
 
+/**
+ * Matriz de requerimientos de la modalidad para el examen (se reutiliza en cada examen de la modalidad)
+ */
 class MatrixRequirement extends Model
 {
     protected $fillable = [

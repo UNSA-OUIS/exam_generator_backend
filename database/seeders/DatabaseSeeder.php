@@ -14,11 +14,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            ModalitySeeder::class,
+            //ModalitySeeder::class,
             LevelSeeder::class,
-            MatrixSeeder::class,
-            MatrixRequirementSeeder::class,
-            ConfinementSeeder::class,
+            //MatrixSeeder::class,
+            //MatrixRequirementSeeder::class,
+            //ConfinementSeeder::class,
             //ExamSeeder::class
         ]);
     }

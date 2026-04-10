@@ -31,6 +31,13 @@ class QuestionImportService
         $resolutionsTargetPath = "{$baseTargetPath}/resolutions";
         $imagesTargetPath = "{$baseTargetPath}/images";
 
+        if (File::exists($baseTargetPath)) {
+            return [
+                'success' => false,
+                'message' => "Import already executed for confinement '{$confinementId}'. Target path already exists."
+            ];
+        }
+
         try {
             // === Copy resolution and image folders only once ===
             if (!File::exists($resolutionsTargetPath)) {
@@ -114,7 +121,7 @@ class QuestionImportService
                     'resolution_path' => "confinements/{$confinementId}/resolutions/{$resolutionFilename}",
                     'answer' => $q['answer'],
                     'confinement_id' => $confinementId,
-                    'created_by' => 1,
+                    'created_by' => 1,  // Admin
                     'modified_by' => 1
                 ]);
 

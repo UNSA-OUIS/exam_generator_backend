@@ -340,7 +340,7 @@ class PDFController extends Controller
                 $textos_compilados[] = $question->text_id;
             }
 
-            $tex_content .= $this->getPreguntaLatex($question, $l->options);
+            $tex_content .= $this->getPreguntaLatex($question, $l->options_shuffled);
 
             foreach ($question->images as $image) {
                 $sourcePath = storage_path("app/{$image->path}"); // 👈 real path
