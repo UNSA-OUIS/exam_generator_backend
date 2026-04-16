@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\AreaEnum;
 use App\Enums\ExamStatusEnum;
 use App\Enums\QuestionStatusEnum;
+use App\Models\Block;
 use App\Models\Exam;
 use App\Models\ExamRequirement;
+use App\Models\ExamText;
 use App\Models\Master;
 use App\Models\Question;
+use App\Models\Text;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -79,19 +82,67 @@ class MasterController extends Controller
                 $mastersToInsert = [];
                 $questionsIds = [];
 
+                $texts_ids = [];
                 foreach ($requirements as $req) {
-                    // === Fetch available questions for this block/difficulty/area ===
-                    $available = Question::query()
-                        ->where('status', QuestionStatusEnum::AVAILABLE)
-                        ->where('block_id', $req->block_id)
-                        ->when($req->difficulty !== null, fn($q) => $q->where('difficulty', $req->difficulty))
-                        ->when(
-                            $area !== AreaEnum::UNICA,
-                            fn($q) => $q->whereHas('areas', fn($q) => $q->whereIn('area', [$area, AreaEnum::UNICA])) // Selecciona preguntas del area o generales
-                        )
-                        ->inRandomOrder()
-                        ->limit($req->n_questions)
-                        ->get();
+                    // Los bloques con texto deben ser hojas
+                    $block = Block::find($req->block_id);
+                    if ($block->has_text) {
+                        // sortear preguntas con texto asociado
+                        $exam_texts = ExamText::where('exam_id', $examId)
+                            ->where('area', $area)
+                            ->where('block_id', $req->block_id)->get();
+
+                        // !!verificar que las preguntas requeridas con texto sean las requeridas por el bloque en el examen (pendiente)
+                        // Req dominio: En el internamiento se elaboran textos con n preguntas (2,3,4) y aqui se sortean esos textos dependiendo de su nro de preguntas exacto. De tal forma que no se desperdicien textos con varias preguntas para requerimientos con pocas.
+                        $texts_selected_ids = [];
+                        foreach ($exam_texts as $et) {
+                            $n_texts = $et->n_texts;
+                            $n_questions = $et->questions_per_text;
+                            $req_text_ids = Text::where('status', QuestionStatusEnum::AVAILABLE)
+                                ->where('block_id', $block->id)
+                                ->where('n_questions', $n_questions)
+                                ->inRandomOrder()
+                                ->limit($n_texts)
+                                ->get()
+                                ->pluck('id')
+                                ->toArray();
+                            
+                            if(count($req_text_ids) !== $n_texts) {
+                                throw new Exception("No hay suficientes textos disponibles para el bloque {$block->code} con {$n_questions} preguntas. Requeridos: {$n_texts}, disponibles: " . count($texts_selected_ids));
+                            }
+
+                            $texts_selected_ids = array_merge($texts_selected_ids, $req_text_ids);
+                        }
+
+                        $available = Question::query()
+                            ->whereIn('text_id', $texts_selected_ids)
+                            ->where('status', QuestionStatusEnum::AVAILABLE)
+                            ->get();
+
+                        if ($available->count() < $req->n_questions) {
+                            throw new Exception(
+                                "No hay suficientes preguntas con texto para el bloque {$req->block_id}, " .
+                                    "area {$area->value}. " .
+                                    "Requeridos {$req->n_questions}, encontrados {$available->count()}"
+                            );
+                        }
+
+                        $texts_ids = array_merge($texts_ids, $texts_selected_ids);
+                    } else {
+                        // === Fetch available questions for this block/difficulty/area ===
+                        $available = Question::query()
+                            ->where('status', QuestionStatusEnum::AVAILABLE)
+                            ->where('block_id', $req->block_id)
+                            ->when($req->difficulty !== null, fn($q) => $q->where('difficulty', $req->difficulty))
+                            ->when(
+                                $area !== AreaEnum::UNICA,
+                                fn($q) => $q->whereHas('areas', fn($q) => $q->whereIn('area', [$area, AreaEnum::UNICA])) // Selecciona preguntas del area o generales
+                            )
+                            ->inRandomOrder()
+                            ->limit($req->n_questions)
+                            ->get();
+                    }
+                    
 
                     if ($available->count() < $req->n_questions) {
                         throw new Exception(
@@ -118,6 +169,10 @@ class MasterController extends Controller
                 Master::insert($mastersToInsert);
                 $usedQuestionIds = array_unique(array_merge($usedQuestionIds, $questionsIds));
             }
+
+            // Se actualiza aca para permitir que sean reutilizados en varias areas
+            Text::whereIn('id', $texts_ids)
+                ->update(['status' => QuestionStatusEnum::UNAVAILABLE]);
 
             Question::whereIn('id', $usedQuestionIds)
                 ->update([

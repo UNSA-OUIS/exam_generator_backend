@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\QuestionStatusEnum;
 use App\Models\Block;
 use App\Models\Collaborator;
 use Illuminate\Support\Facades\DB;
@@ -59,9 +60,15 @@ class QuestionImportService
 
             // === TEXTS ===
             foreach ($json['texts'] as $text) {
+                $block = Block::where('code', trim($text['code']))->first();
+                if (!$block) throw new Exception("Block with code '{$text['code']}' not found for text ID '{$text['id']}'");
+                
                 // Create a new Text with auto-generated UUID
                 $newText = Text::create([
-                    'content' => $text['content']
+                    'content' => $text['content'],
+                    'block_id' => $block->id,
+                    'status' => QuestionStatusEnum::AVAILABLE,
+                    'n_questions' => $text['n_questions'],
                 ]);
 
                 // Map the old ID to the new UUID
@@ -107,7 +114,7 @@ class QuestionImportService
                 if (!$block) {
                     throw new Exception("Block with code '{$q['block']}' not found for question ID '{$q['id']}'");
                 }
-
+                
                 $question = Question::create([
                     'statement' => $q['statement'],
                     'difficulty' => $q['difficulty'],

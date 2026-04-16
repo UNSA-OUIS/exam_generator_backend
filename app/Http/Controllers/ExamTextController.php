@@ -128,7 +128,27 @@ class ExamTextController extends Controller
 
         return response()->json($examText);
     }
+    public function byExam(Request $request, string $examId)
+    {
+        $validated = $request->validate([
+            'block_id' => 'required|exists:blocks,id',
+            'area' => ['nullable', new Enum(AreaEnum::class)],
+        ]);
 
+        $query = ExamText::where('exam_id', $examId)
+            ->where('block_id', $validated['block_id']);
+
+        if (!empty($validated['area'])) {
+            $query->where('area', $validated['area']);
+        }
+
+        $examTexts = $query
+            ->with(['block', 'exam'])
+            ->orderBy('id')
+            ->get();
+
+        return response()->json($examTexts);
+    }
     /**
      * Remove the specified resource from storage.
      */

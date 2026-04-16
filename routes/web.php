@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/matrices/{matrix}/requirements', [MatrixRequirementController::class, 'byMatrix']);
 
     Route::get('/exams/{exam}/requirements', [ExamRequirementController::class, 'byExam']);
+    Route::get('/exams/{exam}/texts', [ExamTextController::class, 'byExam']);
 
     Route::get('questions', [QuestionController::class, 'index']);
     Route::get('questions/{id}', [QuestionController::class, 'show']);

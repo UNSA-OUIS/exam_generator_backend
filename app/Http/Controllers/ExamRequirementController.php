@@ -24,7 +24,7 @@ class ExamRequirementController extends Controller
             'parent_id' => 'required|integer|exists:exam_requirements,id',
             'area' => 'required|string',
             'block_id' => 'required|integer|exists:blocks,id',
-            'difficulty' => 'required|string', // Assuming enum validation
+            'difficulty' => 'nullable|string', // Assuming enum validation
             'n_questions' => 'required|integer|min:0',
         ]);
 

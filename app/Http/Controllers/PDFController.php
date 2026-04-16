@@ -125,6 +125,7 @@ class PDFController extends Controller
         $questions = Question::whereIn('id', $questionIds)
             ->with(['options', 'text', 'block.level', 'images'])
             ->orderBy('block_id')
+            ->orderBy('text_id')
             ->orderByRaw("array_position(ARRAY[{$quotedIds}]::uuid[], id::uuid)")
             ->get();
 
@@ -161,6 +162,7 @@ class PDFController extends Controller
         $counter = 1;
 
         $last_block_id = null;
+        $texts_compiled = [];
         foreach ($questions as $question) {
             if ($question->block_id !== $last_block_id) {
                 $blockComponent = Block::where('code', substr($question->block->code, 0, 4))->first();
@@ -172,8 +174,9 @@ class PDFController extends Controller
                 $last_block_id = $question->block_id;
             }
 
-            if ($question->text) {
-                $latex .= "% TEXT\n{$question->text->content}\n";
+            if (!empty($question->text) && !in_array($question->text_id, $texts_compiled)) {
+                $texts_compiled[] = $question->text_id;
+                $latex .= "% TEXT\n{$question->text->content}\n% ENDTEXT\n\n";
             }
 
             $latex .= "% Q" . str_pad($counter, 2, '0', STR_PAD_LEFT) . "\n\n";
