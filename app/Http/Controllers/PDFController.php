@@ -7,19 +7,16 @@ use App\Enums\ExamStatusEnum;
 use App\Models\Block;
 use App\Models\Exam;
 use App\Models\ExamLayout;
-use App\Models\MatrixDetail;
 use App\Models\Master;
 use App\Models\Question;
 use App\Models\QuestionImage;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PDFController extends Controller
 {
-    protected function generateLatexHeader($componentName): string
+    protected function generateMasterHeader($componentName): string
     {
         return "\\documentclass[11pt,twocolumn,twoside]{article}
     \\usepackage[papersize={215mm,320mm},tmargin=18mm,bmargin=32mm,lmargin=15mm,rmargin=15mm]{geometry}
@@ -45,7 +42,7 @@ class PDFController extends Controller
     \\begin{document}";
     }
 
-    public function getExamHeader(Exam $exam, $title, $variation)
+    public function generateExamHeader(Exam $exam, $title, $variation)
     {
         return "\\documentclass[11pt,twocolumn,twoside]{article}
     \\usepackage[papersize={215mm,320mm},tmargin=18mm,bmargin=32mm,lmargin=15mm,rmargin=15mm]{geometry}
@@ -156,7 +153,7 @@ class PDFController extends Controller
         }
 
         // === Prepare LaTeX ===
-        $latex = $this->generateLatexHeader($area);
+        $latex = $this->generateMasterHeader($area);
         $latex .= "\\begin{enumerate}[label=\\textbf{\\arabic*.},start=1]\n";
 
         $counter = 1;
@@ -215,8 +212,6 @@ class PDFController extends Controller
         $filename = "master_{$examId}_{$area}.tex";
         $texRelativePath = "{$folderName}/{$filename}";
         Storage::put($texRelativePath, $latex);
-
-        $texFullPath = storage_path("app/{$texRelativePath}");
 
         // Copy logo
         $logoPath = public_path('images/logounsa.eps');
@@ -333,14 +328,13 @@ class PDFController extends Controller
             ->get();
 
         $texts_compiled = [];
-        $tex_content = $this->getExamHeader($exam, $area->value, $variation);
+        $tex_content = $this->generateExamHeader($exam, $area->value, $variation);
         foreach ($exam_layout as $l) {
             $question = $l->question;
 
             if ($question->text_id && !in_array($question->text_id, $texts_compiled)) {
-                $text = $question->text;
-                $tex_content .= "\n" . $text->content;
-                $textos_compilados[] = $question->text_id;
+                $texts_compiled[] = $question->text_id;
+                $tex_content .= "\n% TEXT\n{$question->text->content}\n% ENDTEXT\n\n";
             }
 
             $tex_content .= $this->getPreguntaLatex($question, $l->options_shuffled);
@@ -358,7 +352,7 @@ class PDFController extends Controller
             }
         }
 
-        $tex_content = $tex_content . "\n\\end{enumerate}\n\\end{document}";
+        $tex_content .= "\n\\end{enumerate}\n\\end{document}";
 
         // Copy logo
         $logoPath = public_path('images/logounsa.eps');
