@@ -28,15 +28,8 @@ class MasterController extends Controller
     /**
      * Generate master layout for a given exam and area.
      */
-    public function generate(Request $request)
+    public function generate(Exam $exam)
     {
-        $request->validate([
-            'exam_id' => 'required|uuid',
-        ]);
-
-        $examId = $request->input('exam_id');
-
-        $exam = Exam::find($examId);
         /*if ($exam->status !== ExamStatusEnum::VALIDATED) {
             return response()->json([
                 'success' => false,
@@ -48,21 +41,21 @@ class MasterController extends Controller
         try {
             DB::beginTransaction();
 
-            $areas = ExamRequirement::where('exam_id', $examId)
+            $areas = ExamRequirement::where('exam_id', $exam->id)
                 ->whereNull('parent_id')
                 ->distinct('area')
                 ->pluck('area');
 
             $usedQuestionIds = [];
             foreach ($areas as $area) {
-                Question::where('exam_id', $examId)
+                Question::where('exam_id', $exam->id)
                     ->where('status', QuestionStatusEnum::UNAVAILABLE)
                     ->update([
                         'status' => QuestionStatusEnum::AVAILABLE,
                         'exam_id' => null
                     ]);
 
-                Master::where('exam_id', $examId)
+                Master::where('exam_id', $exam->id)
                     ->where('area', $area)
                     ->delete();
 
@@ -70,7 +63,7 @@ class MasterController extends Controller
                     'SELECT * FROM get_requirements(:model, :uuid, :area)',
                     [
                         'model' => 'exam',
-                        'uuid' => $examId,
+                        'uuid' => $exam->id,
                         'area' => $area->value,
                     ]
                 );
@@ -88,7 +81,7 @@ class MasterController extends Controller
                     $block = Block::find($req->block_id);
                     if ($block->has_text) {
                         // sortear preguntas con texto asociado
-                        $exam_texts = ExamText::where('exam_id', $examId)
+                        $exam_texts = ExamText::where('exam_id', $exam->id)
                             ->where('area', $area)
                             ->where('block_id', $req->block_id)->get();
 
@@ -155,7 +148,7 @@ class MasterController extends Controller
                     // === Build master records ===
                     foreach ($available as $q) {
                         $mastersToInsert[] = [
-                            'exam_id' => $examId,
+                            'exam_id' => $exam->id,
                             'area' => $area,
                             'question_id' => $q->id,
                             'created_at' => now(),
@@ -177,7 +170,7 @@ class MasterController extends Controller
             Question::whereIn('id', $usedQuestionIds)
                 ->update([
                     'status' => QuestionStatusEnum::UNAVAILABLE,
-                    'exam_id' => $examId
+                    'exam_id' => $exam->id
                 ]);
 
             $exam->status = ExamStatusEnum::MASTERED;
@@ -197,5 +190,20 @@ class MasterController extends Controller
                 'message' => 'Error generando master: ' . $e->getMessage()
             ], 400);
         }
+    }
+
+    public function destroy(Exam $exam)
+    {
+        if($exam->status !== ExamStatusEnum::MASTERED){
+            return response()->json([
+                'success' => false,
+                'message' => 'El examen debe estar en estado SORTEADO para eliminar los masters.'
+            ], 400);
+        }
+
+        Master::where('exam_id', $exam->id)->delete();
+        $exam->status = ExamStatusEnum::CONFIGURING;    // Volver a validar para generar nuevo master
+        $exam->save();
+        return response()->json(null, 204);
     }
 }

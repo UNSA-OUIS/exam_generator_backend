@@ -34,13 +34,8 @@ class SortController extends Controller
     /**
      * Generate master layout for a given exam and area.
      */
-    public function sortVariations(Request $request)
+    public function sortVariations(Exam $exam)
     {
-        $request->validate([
-            'exam_id' => 'required|uuid',
-        ]);
-
-        $exam = Exam::find($request->input('exam_id'));
         $variations = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
         if ($exam->status !== ExamStatusEnum::MASTERED) {
@@ -55,7 +50,7 @@ class SortController extends Controller
 
         try {
             DB::beginTransaction();
-            $areas = ExamRequirement::where('exam_id', $request->input('exam_id'))
+            $areas = ExamRequirement::where('exam_id', $exam->id)
                 ->whereNull('parent_id')
                 ->distinct('area')
                 ->pluck('area');
@@ -63,7 +58,7 @@ class SortController extends Controller
             foreach ($areas as $area) {
                 $master = Master::join('questions', 'masters.question_id', '=', 'questions.id')
                     ->join('blocks', 'questions.block_id', '=', 'blocks.id')
-                    ->where('masters.exam_id', $request->input('exam_id'))
+                    ->where('masters.exam_id', $exam->id)
                     ->where('masters.area', $area)
                     ->select('masters.id', 'masters.question_id', 'blocks.code', 'questions.text_id')
                     ->get();
