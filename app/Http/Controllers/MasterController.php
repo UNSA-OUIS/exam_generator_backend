@@ -202,6 +202,10 @@ class MasterController extends Controller
         }
 
         Master::where('exam_id', $exam->id)->delete();
+        Question::where('exam_id', $exam->id)->update([
+            'status' => QuestionStatusEnum::AVAILABLE,
+            'exam_id' => null
+        ]);
         $exam->status = ExamStatusEnum::CONFIGURING;    // Volver a validar para generar nuevo master
         $exam->save();
         return response()->json(null, 204);

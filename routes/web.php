@@ -73,4 +73,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/exams/{exam}/variations', [ExamLayoutController::class, 'destroy']);
     Route::get('/exams/{exam}/variation/{area}/{variation}', [PDFController::class, 'generateVariationPdf']);
     Route::get('/exams/{exam}/answers', [ExamController::class, 'getAnswers']);
+    Route::post('/exams/{exam}/approve', [ExamController::class, 'approve']);
 });

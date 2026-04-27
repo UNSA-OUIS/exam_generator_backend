@@ -46,7 +46,6 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
 
     Route::get('questions', [QuestionController::class, 'index']);
     Route::get('questions/{id}', [QuestionController::class, 'show']);
-
     Route::apiResources([
         'modalities' => ModalityController::class,
         'matrices' => MatrixController::class,
@@ -69,6 +68,7 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
     Route::get('/exams/{exam_id}/master/{area}/pdf', [PDFController::class, 'generateMasterPdf']);
     Route::get('/exams/{exam}/validate', [ExamController::class, 'validate']);
     Route::get('/exams/{exam}/validate', [ExamController::class, 'validate']);
-    Route::post('/exams/{exam}/variations', [SortController::class, 'sortVariations']);    Route::get('/exams/{exam}/variation/{area}/{variation}', [PDFController::class, 'generateVariationPdf']);
+    Route::post('/exams/{exam}/variations', [SortController::class, 'sortVariations']);    
+    Route::get('/exams/{exam}/variation/{area}/{variation}', [PDFController::class, 'generateVariationPdf']);
     Route::get('/exams/{exam}/answers', [ExamController::class, 'getAnswers']);
 //});

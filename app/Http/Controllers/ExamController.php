@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ExamStatusEnum;
+use App\Enums\QuestionStatusEnum;
 use App\Models\Exam;
 use App\Models\ExamLayout;
 use App\Models\ExamRequirement;
+use App\Models\Master;
 use App\Models\Matrix;
 use App\Models\MatrixRequirement;
+use App\Models\Question;
+use App\Models\Text;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -171,5 +175,46 @@ class ExamController extends Controller
             ->values();
 
         return $grouped;
+    }
+
+    public function approve(Exam $exam)
+    {
+        if ($exam->status !== ExamStatusEnum::VARIATED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El examen debe estar en estado VARIADO para ser aprobado.'
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $exam->status = ExamStatusEnum::APPROVED;
+            $exam->save();
+
+            // Set all questions of the exam to USED
+            Question::where('exam_id', $exam->id)
+                ->update(['questions.status' => QuestionStatusEnum::USED]);
+
+            // Set all texts of the exam to USED
+            $texts_ids = Question::where('exam_id', $exam->id)
+                ->whereNotNull('text_id')
+                ->distinct()
+                ->pluck('text_id');
+
+            Text::whereIn('id', $texts_ids)
+                ->update(['texts.status' => QuestionStatusEnum::USED]);
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'El examen ha sido marcado como APROBADO.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al marcar el examen como aprobado: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
