@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AreaEnum;
 use App\Enums\ExamStatusEnum;
 use App\Enums\QuestionStatusEnum;
 use App\Models\Exam;
@@ -12,11 +13,18 @@ use App\Models\Matrix;
 use App\Models\MatrixRequirement;
 use App\Models\Question;
 use App\Models\Text;
+use App\Services\LatexService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ExamController extends Controller
 {
+    public function __construct(
+        private LatexService $latex
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -138,6 +146,9 @@ class ExamController extends Controller
 
     public function getAnswers(Exam $exam)
     {
+        if($exam->status !== ExamStatusEnum::VARIATED) {
+            return response()->json(['error' => 'Respuestas no disponibles para exámenes no permutados'], 422);
+        }
         $layouts = ExamLayout::join('questions', 'questions.id', '=', 'exam_layouts.question_id')
             ->where('exam_layouts.exam_id', $exam->id)
             ->orderBy('area')
@@ -216,5 +227,91 @@ class ExamController extends Controller
                 'message' => 'Ocurrió un error al marcar el examen como aprobado: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function downloadExamAssets(Request $request, Exam $exam)
+    {
+        Log::alert("Download assets requested for exam {$exam->id}");
+        /*if($exam->status !== ExamStatusEnum::APPROVED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Los activos solo pueden ser descargados para examenes aprobados.'
+            ], 400);
+        }*/
+
+        $baseFolder = '/tmp/exam_assets_' . $exam->id;
+        $zipPath = storage_path('app/exam_assets_' . $exam->id . '.zip');
+
+        // Limpiar si existe
+        if (File::exists($baseFolder)) {
+            File::deleteDirectory($baseFolder);
+        }
+
+        File::makeDirectory($baseFolder, 0755, true);
+        $logoSrc = public_path('images/logounsa.eps');
+
+        foreach(AreaEnum::cases() as $area) {
+            for( $i = 0; $i < $exam->total_variations; $i++ ) {
+                $variation = chr(65 + $i); // A, B, C...
+                $folder = "{$baseFolder}/{$area->value}_{$variation}";
+
+                $layout = ExamLayout::with('question.options', 'question.images')
+                    ->where('exam_id', $exam->id)
+                    ->where('area', $area)
+                    ->where('variation', $variation)
+                    ->orderBy('position')
+                    ->get();
+
+                if($layout->isEmpty()) {
+                    Log::info("No layout found for exam {$exam->id}, area {$area->value}, variation {$variation}");
+                    continue;
+                }
+
+                File::makeDirectory($folder, 0755, true, true);
+
+                $latex = $this->latex->buildVariation($exam, $layout, $area->value, $variation);
+                
+                // Guardar latex en archivo .tex dentro de la carpeta 'folder'
+                File::put("{$folder}/exam.tex", $latex);
+                
+                File::copy($logoSrc, "{$folder}/logounsa.eps");
+
+                // copiar imagenes a una carpeta imagenes dentro de la carpeta 'folder'
+                $images = $layout->pluck('question.images')->flatten()->all();
+                foreach ($images as $img) {
+                    $srcRelative = $img->path;
+                    $src = storage_path('app/' . $srcRelative);
+
+                    if (File::exists($src)) {
+                        $filename = basename($src);
+                        File::copy($src, "{$folder}/{$filename}");
+                    }
+                }
+            }
+        }
+
+        // Comprimir la carpeta baseFolder y devolver el archivo zip para descarga
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($baseFolder),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($baseFolder) + 1);
+
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+
+            $zip->close();
+        }
+
+        File::deleteDirectory($baseFolder);
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 }
