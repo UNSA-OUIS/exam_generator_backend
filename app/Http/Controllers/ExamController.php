@@ -272,7 +272,7 @@ class ExamController extends Controller
                 $latex = $this->latex->buildVariation($exam, $layout, $area->value, $variation);
                 
                 // Guardar latex en archivo .tex dentro de la carpeta 'folder'
-                File::put("{$folder}/exam.tex", $latex);
+                File::put("{$folder}/{$area->value}_{$variation}.tex", $latex);
                 
                 File::copy($logoSrc, "{$folder}/logounsa.eps");
 
